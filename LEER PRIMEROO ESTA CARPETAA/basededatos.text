@@ -1,0 +1,197 @@
+COPIAR Y PEGAR BD EN EL SQL SERVER TAL CUAL ESTA PQ SI NO SALDRAN ERRORES EN LAS DEMAS PAGINAS
+YA ESTA CORREGIDA Y NORMALIZADA
+
+------------------------------------------
+CREATE DATABASE CoffeBistro;
+GO
+
+USE CoffeBistro;
+GO
+
+-- Tablas de catálogos / ===========
+
+CREATE TABLE Roles (
+    Id_Rol INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Estados_Pedidos (
+    Id_Estado INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Metodos_Pago (
+    Id_Metodo_Pago INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(50) NOT NULL
+);
+
+-- 
+-- Productos e insumos
+
+
+CREATE TABLE Productos (
+    Id_Producto INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(120) NOT NULL,
+    Descripcion TEXT,
+    Precio_Venta DECIMAL(10,2) NOT NULL DEFAULT 0.00
+);
+
+CREATE TABLE Insumos (
+    Id_Insumo INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(120) NOT NULL,
+    Unidad_Medida VARCHAR(20) NOT NULL   -- ej: kg, litro, pieza, docena, etc.
+);
+
+CREATE TABLE Proveedores (
+    Id_Proveedor INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(120) NOT NULL,
+    Telefono VARCHAR(20),
+    Correo VARCHAR(120),
+    Estado BIT DEFAULT 1,                -- 1 = activo, 0 = inactivo
+    Fecha_Registro DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Proveedores_Insumos (
+    Id_Proveedor_Insumo INT PRIMARY KEY IDENTITY(1,1),
+    Id_Proveedor INT NOT NULL,
+    Id_Insumo    INT NOT NULL,
+    Precio_Compra DECIMAL(10,2) NOT NULL,
+    Ultima_Actualizacion DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (Id_Proveedor) REFERENCES Proveedores(Id_Proveedor),
+    FOREIGN KEY (Id_Insumo)    REFERENCES Insumos(Id_Insumo),
+    CONSTRAINT UK_Proveedores_Insumos UNIQUE (Id_Proveedor, Id_Insumo)
+);
+
+CREATE TABLE Inventario_Insumos (
+    Id_Inventario INT PRIMARY KEY IDENTITY(1,1),
+    Id_Insumo INT NOT NULL,
+    Existencia DECIMAL(12,3) NOT NULL DEFAULT 0,
+    Fecha_Actualizacion DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (Id_Insumo) REFERENCES Insumos(Id_Insumo)
+    );
+-- Usuarios, clientes y direcciones
+
+
+CREATE TABLE Usuarios (
+    Id_Usuario INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(80) NOT NULL,
+    Ap_Paterno VARCHAR(60) NOT NULL,
+    Ap_Materno VARCHAR(60),
+    Correo VARCHAR(120) UNIQUE,
+    Contrasena VARCHAR(255) NOT NULL,          -- almacenar hash (nunca texto plano)
+    Telefono VARCHAR(20),
+    Id_Rol INT NOT NULL,
+    Estado BIT DEFAULT 1,
+    Fecha_Registro DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (Id_Rol) REFERENCES Roles(Id_Rol)
+);
+
+CREATE TABLE Clientes (
+    Id_Cliente INT PRIMARY KEY IDENTITY(1,1),
+    Id_Usuario INT NULL,                       -- NULL = cliente sin cuenta registrada
+    Nombre_Completo VARCHAR(200) NOT NULL,     -- para clientes ocasionales / sin login
+    Telefono VARCHAR(20),
+    Correo VARCHAR(120),
+    Notas TEXT,
+    FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id_Usuario)
+);
+
+CREATE TABLE Direcciones (
+    Id_Direccion INT PRIMARY KEY IDENTITY(1,1),
+    Id_Cliente   INT NULL,
+    Id_Usuario   INT NULL,
+    Calle        VARCHAR(120) NOT NULL,
+    Num_Ext      VARCHAR(20),
+    Num_Int      VARCHAR(20),
+    Colonia      VARCHAR(80),
+    Ciudad       VARCHAR(80),
+    Estado       VARCHAR(80),
+    Codigo_Postal VARCHAR(10),
+    Referencia   TEXT,
+    Es_Predeterminada BIT DEFAULT 0,
+    FOREIGN KEY (Id_Cliente) REFERENCES Clientes(Id_Cliente),
+    FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id_Usuario),
+    CONSTRAINT CHK_Direccion_Entidad CHECK (
+        (Id_Cliente IS NOT NULL AND Id_Usuario IS NULL) OR 
+        (Id_Cliente IS NULL AND Id_Usuario IS NOT NULL) OR
+        (Id_Cliente IS NULL AND Id_Usuario IS NULL)     -- permitir direcciones genéricas si aplica
+    )
+);
+
+-- =============================================
+-- Pedidos y detalles
+
+
+CREATE TABLE Pedidos (
+    Id_Pedido INT PRIMARY KEY IDENTITY(1,1),
+    Id_Cliente INT NOT NULL,
+    Id_Direccion_Entrega INT NOT NULL,
+    Id_Estado INT NOT NULL,
+    Fecha_Pedido DATETIME NOT NULL DEFAULT GETDATE(),
+    Fecha_Entrega_Estimada DATETIME,
+    Notas TEXT,
+    FOREIGN KEY (Id_Cliente)           REFERENCES Clientes(Id_Cliente),
+    FOREIGN KEY (Id_Direccion_Entrega) REFERENCES Direcciones(Id_Direccion),
+    FOREIGN KEY (Id_Estado)            REFERENCES Estados_Pedidos(Id_Estado)
+);
+
+CREATE TABLE Detalles_Pedidos (
+    Id_Detalle INT PRIMARY KEY IDENTITY(1,1),
+    Id_Pedido INT NOT NULL,
+    Id_Producto INT NOT NULL,
+    Cantidad DECIMAL(10,2) NOT NULL,
+    Precio_Unitario DECIMAL(10,2) NOT NULL,
+    Subtotal AS (Cantidad * Precio_Unitario) PERSISTED,
+    FOREIGN KEY (Id_Pedido)   REFERENCES Pedidos(Id_Pedido),
+    FOREIGN KEY (Id_Producto) REFERENCES Productos(Id_Producto)
+);
+
+-- =============================================
+-- Recetas e ingredientes
+
+
+CREATE TABLE Recetas (
+    Id_Receta INT PRIMARY KEY IDENTITY(1,1),
+    Id_Producto INT NOT NULL,
+    Nombre VARCHAR(120),
+    Instrucciones TEXT,
+    Tiempo_Estimado_Minutos INT,
+    Rendimiento DECIMAL(10,2),               -- cuántas unidades produce
+    FOREIGN KEY (Id_Producto) REFERENCES Productos(Id_Producto)
+);
+
+CREATE TABLE Ingredientes (
+    Id_Ingrediente INT PRIMARY KEY IDENTITY(1,1),
+    Id_Receta INT NOT NULL,
+    Id_Insumo INT NOT NULL,
+    Cantidad DECIMAL(12,3) NOT NULL,
+    FOREIGN KEY (Id_Receta) REFERENCES Recetas(Id_Receta),
+    FOREIGN KEY (Id_Insumo) REFERENCES Insumos(Id_Insumo)
+);
+
+-- =============================================
+-- Pagos y tickets
+
+
+CREATE TABLE Pagos (
+    Id_Pago INT PRIMARY KEY IDENTITY(1,1),
+    Id_Pedido INT NOT NULL,
+    Id_Metodo_Pago INT NOT NULL,
+    Fecha_Pago DATETIME NOT NULL DEFAULT GETDATE(),
+    Subtotal DECIMAL(12,2) NOT NULL,
+    Descuento DECIMAL(12,2) DEFAULT 0,
+    Total DECIMAL(12,2) NOT NULL,
+    Notas TEXT,
+    FOREIGN KEY (Id_Pedido)      REFERENCES Pedidos(Id_Pedido),
+    FOREIGN KEY (Id_Metodo_Pago) REFERENCES Metodos_Pago(Id_Metodo_Pago)
+);
+
+CREATE TABLE Tickets (
+    Id_Ticket INT PRIMARY KEY IDENTITY(1,1),
+    Id_Pedido INT NOT NULL UNIQUE,           -- 1 ticket por pedido
+    Id_Pago INT NULL,                        -- puede crearse después del pago
+    Fecha_Generacion DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (Id_Pedido) REFERENCES Pedidos(Id_Pedido),
+    FOREIGN KEY (Id_Pago)   REFERENCES Pagos(Id_Pago)
+);
+GO

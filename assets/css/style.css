@@ -1,0 +1,412 @@
+/* ===== VARIABLES DE COLOR ===== */
+:root {
+    --black: #0a0908ff;
+    --jet-black: #22333bff;
+    --white-smoke: #f2f4f3ff;
+    --dusty-taupe: #a9927dff;
+    --stone-brown: #5e503fff;
+
+    /* Colores semánticos para mejor mantenimiento */
+    --text-primary: var(--black);
+    --text-secondary: #4a4035;
+    --text-light: #8c7d6f;
+    --bg-card: var(--white-smoke);
+    --bg-section-light: #f8f7f5;
+    --shadow-light: rgba(94, 80, 63, 0.08);
+    --shadow-medium: rgba(94, 80, 63, 0.15);
+    --shadow-heavy: rgba(10, 9, 8, 0.25);
+
+    /* Status sin verde */
+    --status-disponible-bg: #e6f0e0;
+    --status-disponible-text: #2f4a2a;
+    --status-ocupado-bg: #f0e4e4;
+    --status-ocupado-text: #5c2a2a;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: var(--black);
+    background: var(--white-smoke);
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, var(--jet-black) 0%, var(--black) 100%);
+    box-shadow: 0 8px 32px var(--shadow-heavy);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo como imagen */
+.logo {
+    display: block;
+    max-height: 55px;           /* Ajusta según el tamaño que quieras */
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+.logo-img {
+    height: 100px;               /* La imagen ocupa toda la altura del contenedor */
+    width: auto;
+    max-width: 100px;           /* Evita que sea demasiado ancho */
+    object-fit: contain;        /* Mantiene las proporciones */
+}
+
+/* Efecto hover opcional */
+.logo:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Si quieres que el logo sea más grande en escritorio */
+@media (min-width: 768px) {
+    .logo {
+        max-height: 65px;
+    }
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+nav a {
+    color: var(--white-smoke);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+nav a:hover {
+    background: rgba(169, 146, 125, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Hero */
+.hero, .hero-menu, .hero-reservas {
+    background: linear-gradient(rgba(10,9,8,0.92), rgba(34,51,59,0.85)),
+                linear-gradient(135deg, var(--jet-black), var(--black));
+    background-size: cover;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white-smoke);
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--dusty-taupe), var(--stone-brown));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Botones */
+.btn, .btn-reservar, .btn-agregar {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--dusty-taupe), var(--stone-brown));
+    color: var(--white-smoke);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 12px 40px var(--shadow-medium);
+    font-size: 1rem;
+}
+
+.btn:hover, .btn-reservar:hover, .btn-agregar:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 20px 60px var(--shadow-heavy);
+    color: var(--white-smoke);
+}
+
+/* Cards */
+.card, .producto, .form-container {
+    background: var(--white-smoke);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px var(--shadow-light);
+    border: 1px solid rgba(169, 146, 125, 0.12);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card:hover, .producto:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 32px 80px var(--shadow-medium);
+}
+
+/* Grid */
+.services-grid, .menu-grid, .productos-grid, .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Inputs y Forms */
+input, select, textarea {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(169, 146, 125, 0.25);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--dusty-taupe);
+    box-shadow: 0 0 0 4px rgba(169, 146, 125, 0.12);
+}
+
+/* Secciones */
+section {
+    padding: 5rem 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card, .producto {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+   
+    nav ul {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+   
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+   
+    section {
+        padding: 3rem 1rem;
+    }
+   
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Carrito */
+.cart-item {
+    background: rgba(169, 146, 125, 0.06);
+    border-left: 4px solid var(--dusty-taupe);
+}
+
+.total-final {
+    background: linear-gradient(135deg, var(--dusty-taupe), var(--stone-brown));
+    color: var(--white-smoke);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Status colores */
+.status-disponible { 
+    background: var(--status-disponible-bg); 
+    color: var(--status-disponible-text); 
+}
+
+.status-ocupado { 
+    background: var(--status-ocupado-bg); 
+    color: var(--status-ocupado-text); 
+}
+
+/* Pal menu y botones de categoría */
+.cat-btn.active, .cat-btn:hover {
+    background: var(--dusty-taupe) !important;
+    color: var(--white-smoke) !important;
+    transform: translateY(-2px);
+}
+
+.producto-card:hover .add-cart {
+    transform: scale(1.1);
+    background: var(--dusty-taupe);
+}
+
+.add-cart:hover i {
+    color: var(--white-smoke) !important;
+}
+
+.btn-add-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(169, 146, 125, 0.4);
+}
+
+/* Animación entrada */
+.productos-grid {
+    animation: fadeInGrid 0.6s ease-out;
+}
+
+@keyframes fadeInGrid {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* CONTRASTES*/
+
+/* Texto por defecto */
+body, h1, h2, h3, h4, h5, h6, p, span, label {
+    color: var(--text-primary);
+}
+
+/* Cards y contenedores blancos */
+.card, .producto, .form-container, .resumen {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+.card h1, .card h2, .card h3, .card h4,
+.producto h1, .producto h2, .producto h3, .producto h4,
+.form-container h1, .form-container h2, .form-container h3 {
+    color: var(--text-primary) !important;
+    font-weight: 700;
+}
+
+/* Párrafos y descripciones */
+p, .menu-desc, .descripcion, label {
+    color: var(--text-secondary) !important;
+}
+
+/* Subtítulos y textos secundarios */
+small, .text-muted, .categoria-tag {
+    color: var(--text-light) !important;
+}
+
+/* Secciones con fondo claro */
+section[style*="background: var(--light)"],
+section[style*="background: #f5f5f5"],
+.buscador-section, .disponibilidad {
+    background: var(--bg-section-light) !important;
+}
+
+section[style*="background: var(--light)"] h1,
+section[style*="background: #f5f5f5"] h1,
+section[style*="background: var(--light)"] h2,
+section[style*="background: #f5f5f5"] h2 {
+    color: var(--text-primary) !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+}
+
+/* Formularios */
+input, select, textarea, label {
+    color: var(--text-primary) !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-light) !important;
+}
+
+/* Botones en fondos claros */
+.btn {
+    color: var(--white-smoke) !important;
+}
+
+/* Carrito específico */
+.cart-item {
+    background: rgba(169, 146, 125, 0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+.cart-item h4 {
+    color: var(--text-primary) !important;
+}
+
+/* Testimonios */
+.testimonial-card {
+    background: rgba(255,255,255,0.95) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: blur(20px);
+}
+
+.testimonial-card p {
+    color: var(--text-secondary) !important;
+}
+
+/* Empty states */
+.empty-state, .empty-cart {
+    color: var(--text-secondary) !important;
+}
+
+.empty-state h3, .empty-cart h2 {
+    color: var(--text-primary) !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb a {
+    color: var(--dusty-taupe) !important;
+}
+
+.breadcrumb span {
+    color: var(--text-light) !important;
+}
+
+/* Filtros y tags */
+.cat-btn, .categoria-tag {
+    color: var(--text-secondary) !important;
+    background: rgba(169, 146, 125, 0.1) !important;
+}
+
+.cat-btn.active {
+    background: var(--dusty-taupe) !important;
+    color: var(--white-smoke) !important;
+}
+
+/* Header nav en móvil */
+@media (max-width: 768px) {
+    nav a {
+        color: var(--white-smoke) !important;
+    }
+}

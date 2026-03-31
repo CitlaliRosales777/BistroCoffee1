@@ -1,0 +1,35 @@
+ola para q toda esta pendejada funcione hasta lo que hice:
+
+1.Tener el sql server
+2. yo use visual studio code para hacer todo esto
+3. Descargar Laragon
+
+Con el laragon descargado instalarlo en la raiz principal de su computadora jsjsj (C:\Laragon\www) 
+o instalacion por defecto que te da Laragon  
+
+en www se colocan todos los archivos de estamadre
+
+Esta es la estructura de las carpetas dentro del www -Trate de q cada codigo este comentado minimo con lo q hace-
+
+bistro-coffee/
+├── config/
+│   └── database.php
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── main.js
+│   └── images/
+├── includes/
+│   ├── header.php
+│   ├── footer.php
+│   └── functions.php
+├── admin/
+├── pages/
+│   ├── menu.php
+│   ├── reservas.php
+│   └── pedidos.php
+├── index.php
+└── login.php
+
+Hay algunas secciones que no estan terminadas, pero creo que con lo que hice pueden moverle y experimentar
