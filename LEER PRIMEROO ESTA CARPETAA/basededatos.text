@@ -195,3 +195,21 @@ CREATE TABLE Tickets (
     FOREIGN KEY (Id_Pago)   REFERENCES Pagos(Id_Pago)
 );
 GO
+
+-- AGREGAR COLUMNA IMAGEN
+USE CoffeBistro;
+GO
+
+ALTER TABLE Productos 
+ADD Imagen NVARCHAR(255) NULL;
+GO
+
+-- VERIFICAR que se agregó
+SELECT TOP 5 Id_Producto, Nombre, Imagen FROM Productos;
+GO
+
+-- Poner imagen por defecto a productos existentes
+UPDATE Productos 
+SET Imagen = 'default.jpg' 
+WHERE Imagen IS NULL;
+GO

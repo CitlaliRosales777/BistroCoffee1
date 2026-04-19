@@ -17,7 +17,7 @@ if ($_POST) {
         header('Location: dashboard.php');
         exit;
     } else {
-        $error = '❌ Credenciales incorrectas';
+        $error = 'Credenciales incorrectas';
     }
 }
 ?>

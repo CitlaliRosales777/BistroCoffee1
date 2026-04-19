@@ -64,4 +64,48 @@ function getReservasRecientes($conn, $limit = 10) {
 }
 ?>
 
+<?php
+function getReservas($conn, $filtros = []) {
+    $sql = "SELECT * FROM Reservas WHERE 1=1";
+    $params = [];
+    
+    if (!empty($filtros['fecha'])) {
+        $sql .= " AND Fecha = ?";
+        $params[] = $filtros['fecha'];
+    }
+    if (!empty($filtros['estado'])) {
+        $sql .= " AND Estado = ?";
+        $params[] = $filtros['estado'];
+    }
+    if (!empty($filtros['busqueda'])) {
+        $sql .= " AND (Nombre LIKE ? OR Email LIKE ? OR Telefono LIKE ?)";
+        $buscar = "%" . $filtros['busqueda'] . "%";
+        $params[] = $buscar; $params[] = $buscar; $params[] = $buscar;
+    }
+    
+    $sql .= " ORDER BY Fecha ASC, Hora ASC";
+    return db_fetch_all($conn, $sql, $params);
+}
+
+function actualizarEstadoReserva($conn, $id, $estado) {
+    return db_query($conn, "UPDATE Reservas SET Estado = ? WHERE Id_Reserva = ?", [$estado, $id]);
+}
+
+function eliminarReserva($conn, $id) {
+    return db_query($conn, "DELETE FROM Reservas WHERE Id_Reserva = ?", [$id]);
+}
+
+function statsReservas($conn) {
+    $total = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas")['total'] ?? 0;
+    $pendientes = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Pendiente'")['total'] ?? 0;
+    $hoy = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE CONVERT(DATE, Created_At) = CONVERT(DATE, GETDATE())")['total'] ?? 0;
+    
+    return [
+        'total' => $total,
+        'pendientes' => $pendientes,
+        'hoy' => $hoy
+    ];
+}
+?>
+
 //AQUI SOLO SIRVE DE AYUDA EN LAS RESERVAS NO HACE MUCHO SOLO LANZAR MENSAJES DE CONFIRMACION

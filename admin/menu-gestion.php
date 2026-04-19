@@ -4,7 +4,7 @@ require_once '../includes/auth.php';
 
 $usuario = requiereRol($conn, ['Administrador']);
 
-// ✅ Inicializar variables
+// Inicializar variables
 $mensaje = '';
 $edit_id = null;
 $edit_producto = null;
@@ -63,9 +63,9 @@ if ($_POST) {
         }
         $sql = "DELETE FROM Productos WHERE Id_Producto = ?";
         if (db_query($conn, $sql, [$_POST['id']])) {
-            $mensaje = '✅ Producto y imagen eliminados del menú';
+            $mensaje = 'Producto y imagen eliminados del menú';
         } else {
-            $mensaje = '❌ Error al eliminar producto';
+            $mensaje = 'Error al eliminar producto';
         }
     }
     
