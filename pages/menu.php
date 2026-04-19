@@ -16,7 +16,7 @@ $productos = getProductos($conn, $busqueda);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menú Digital - Bistro & Coffee</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=42">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -25,19 +25,17 @@ $productos = getProductos($conn, $busqueda);
     <!-- HERO MENÚ -->
     <section class="hero-menu" style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); color: white; padding: 4rem 2rem; text-align: center;">
         <div class="container">
-            <h1 style="font-size: 3.5rem; margin-bottom: 1rem;"><i class="fas fa-utensils"></i> Nuestro Menú</h1>
-            <p style="font-size: 1.3rem; max-width: 600px; margin: 0 auto;">Explora nuestras delicias recién preparadas</p>
+            <h1 style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--stone-brown);"><i class="fas fa-utensils"></i> Nuestro Menú</h1>
+            <p style="font-size: 1.3rem; max-width: 600px; margin: 0 auto; color: var(--stone-brown);">Explora nuestras delicias recién preparadas</p>
         </div>
     </section>
 
     <!-- BUSCADOR -->
-    <section class="buscador-section" style="padding: 3rem 2rem; background: var(--light);">
+    <section class="buscador-section" style="padding: 3rem 2rem; background: var(--logo-cream);">
         <div class="container">
             <form method="GET" style="max-width: 500px; margin: 0 auto;">
                 <div class="input-group" style="position: relative;">
-                    <input type="text" name="buscar" value="<?= htmlspecialchars($busqueda) ?>" 
-                           placeholder="🔍 Busca tu platillo favorito..." 
-                           style="width: 100%; padding: 1.2rem 1rem 1.2rem 4rem; border: 3px solid #eee; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <input type="text" name="buscar" value="<?= htmlspecialchars($busqueda) ?>"placeholder="🔍 Busca tu platillo favorito..." style="width: 100%; padding: 1.2rem 1rem 1.2rem 4rem; border: 3px solid #eee; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
                     <i class="fas fa-search" style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem;"></i>
                 </div>
             </form>
@@ -137,15 +135,29 @@ $productos = getProductos($conn, $busqueda);
     </script>
 
     <style>
-    .btn-agregar, .quick-add { 
-        background: var(--primary); color: white; border: none; 
+    .btn-agregar { 
+        background: linear-gradient(135deg, var(--dusty-taupe), var(--stone-brown));
+        color: white; border: none; 
         padding: 0.8rem 1.5rem; border-radius: 25px; 
         font-weight: 600; cursor: pointer; transition: all 0.3s;
     }
-    .btn-agregar:hover, .quick-add:hover { 
-        transform: scale(1.05); box-shadow: 0 10px 25px rgba(212,165,116,0.4);
+    .btn-agregar:hover { 
+        transform: scale(1.05); 
+        box-shadow: 0 10px 25px rgba(94, 80, 63, 0.4);
+    }
+    .quick-add {
+        background: white;
+        border: 2px solid var(--dusty-taupe);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .quick-add:hover {
+        background: var(--dusty-taupe);
+    }
+    .quick-add:hover i {
+        color: white !important;
     }
     .producto { transition: all 0.4s ease; }
     </style>
-</body>
 </html>

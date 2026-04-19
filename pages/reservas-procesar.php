@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/reservas-functions.php';
+require_once 'includes/functions.php';
 
 if ($_POST) {
     if (guardarReserva($conn, $_POST)) {

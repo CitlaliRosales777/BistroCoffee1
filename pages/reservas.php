@@ -13,7 +13,7 @@ $mensaje = '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservas - Bistro & Coffee</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -22,8 +22,8 @@ $mensaje = '';
     <!-- HERO RESERVAS -->
     <section class="hero-reservas" style="background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); color: white; padding: 5rem 2rem; text-align: center;">
         <div class="container">
-            <h1 style="font-size: 3.5rem; margin-bottom: 1rem;"><i class="fas fa-calendar-check"></i> Reserva tu Mesa</h1>
-            <p style="font-size: 1.3rem;">Disponibilidad en tiempo real • Confirmación inmediata</p>
+            <h1 style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--stone-brown);"><i class="fas fa-calendar-check"></i> Reserva tu Mesa</h1>
+            <p style="font-size: 1.3rem; color: var(--stone-brown);">Disponibilidad en tiempo real • Confirmación inmediata</p>
         </div>
     </section>
 
@@ -31,13 +31,12 @@ $mensaje = '';
     <section class="disponibilidad" style="padding: 4rem 2rem; background: var(--light);">
         <div class="container">
             <div class="calendario-selector" style="max-width: 400px; margin: 0 auto 3rem;">
-                <input type="date" id="fecha-selector" value="<?= $fecha ?>" 
-                       style="width: 100%; padding: 1rem; border: 3px solid var(--primary); border-radius: 15px; font-size: 1.1rem; text-align: center;">
+                <input type="date" id="fecha-selector" value="<?= $fecha ?>" style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 15px; font-size: 1.1rem; text-align: center;">
             </div>
 
             <!-- ESTADO DISPONIBILIDAD -->
             <div class="estado-disponibilidad text-center mb-5">
-                <div class="fecha-info" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
+                <div class="fecha-info" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--stone-brown);">
                     📅 <?= date('d/m/Y', strtotime($fecha)) ?>
                 </div>
                 <div class="status" style="font-size: 1.2rem; padding: 1rem 2rem; border-radius: 50px; display: inline-block;
@@ -62,25 +61,22 @@ $mensaje = '';
                     <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nombre completo</label>
-                            <input type="text" name="nombre" required 
-                                   style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <input type="text" name="nombre" required  style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Teléfono</label>
-                            <input type="tel" name="telefono" required 
-                                   style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <input type="tel" name="telefono" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                         </div>
                     </div>
 
                     <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Correo (opcional)</label>
-                            <input type="email" name="correo" 
-                                   style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <input type="email" name="correo" style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">👥 Nº Personas</label>
-                            <select name="personas" required style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <select name="personas" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                                 <option value="1">1 persona</option>
                                 <option value="2">2 personas</option>
                                 <option value="3">3 personas</option>
@@ -93,7 +89,7 @@ $mensaje = '';
                     <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">🕒 Hora</label>
-                            <select name="hora" required style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <select name="hora" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                                 <option value="09:00">09:00</option>
                                 <option value="10:00">10:00</option>
                                 <option value="11:00">11:00</option>
@@ -110,7 +106,7 @@ $mensaje = '';
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">⏱️ Duración aprox.</label>
-                            <select name="duracion" style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;">
+                            <select name="duracion" style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;">
                                 <option value="60">1 hora</option>
                                 <option value="90" selected>1.5 horas</option>
                                 <option value="120">2 horas</option>
@@ -120,11 +116,9 @@ $mensaje = '';
 
                     <div style="margin-bottom: 2rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Notas especiales</label>
-                        <textarea name="notas" rows="3" 
-                                  style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; resize: vertical;"></textarea>
+                        <textarea name="notas" rows="3" style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 10px; font-size: 1rem; resize: vertical;"></textarea>
                     </div>
-
-                    <button type="submit" class="btn-reservar" style="width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 1.5rem; border-radius: 15px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                    <button type="submit" class="btn btn-reservar">
                         <i class="fas fa-check"></i> ¡Reservar Mesa Ahora!
                     </button>
                 </form>

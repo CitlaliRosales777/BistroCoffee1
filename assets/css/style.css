@@ -6,8 +6,13 @@
     --dusty-taupe: #a9927dff;
     --stone-brown: #5e503fff;
 
+    /*pagina color*/
+    --logo-cream: #F0EBE3;
+    --logo-gray: #8C8C8C;
+
+
     /* Colores semánticos para mejor mantenimiento */
-    --text-primary: var(--black);
+    --text-primary: var(--stone-brown);
     --text-secondary: #4a4035;
     --text-light: #8c7d6f;
     --bg-card: var(--white-smoke);
@@ -34,12 +39,12 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     line-height: 1.6;
     color: var(--black);
-    background: var(--white-smoke);
+    background: var(--logo-cream) !important;
 }
 
 /* Header */
 header {
-    background: linear-gradient(135deg, var(--jet-black) 0%, var(--black) 100%);
+    background: var(--logo-gray) !important;
     box-shadow: 0 8px 32px var(--shadow-heavy);
     position: sticky;
     top: 0;
@@ -68,6 +73,11 @@ header {
     width: auto;
     max-width: 100px;           /* Evita que sea demasiado ancho */
     object-fit: contain;        /* Mantiene las proporciones */
+}
+
+.logo,
+.logo span {
+    color: var(--white-smoke) !important;
 }
 
 /* Efecto hover opcional */
@@ -106,8 +116,7 @@ nav a:hover {
 
 /* Hero */
 .hero, .hero-menu, .hero-reservas {
-    background: linear-gradient(rgba(10,9,8,0.92), rgba(34,51,59,0.85)),
-                linear-gradient(135deg, var(--jet-black), var(--black));
+    background: var(--logo-cream) !important;
     background-size: cover;
     min-height: 70vh;
     display: flex;
@@ -154,7 +163,7 @@ nav a:hover {
     background: var(--white-smoke);
     border-radius: 24px;
     padding: 2.5rem;
-    box-shadow: 0 20px 60px var(--shadow-light);
+    box-shadow: 0 300px 500px var(--shadow-heavy);
     border: 1px solid rgba(169, 146, 125, 0.12);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -298,7 +307,7 @@ section {
 
 /* Texto por defecto */
 body, h1, h2, h3, h4, h5, h6, p, span, label {
-    color: var(--text-primary);
+    color: var(--logo-gray);
 }
 
 /* Cards y contenedores blancos */
@@ -316,7 +325,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, label {
 
 /* Párrafos y descripciones */
 p, .menu-desc, .descripcion, label {
-    color: var(--text-secondary) !important;
+    color: var(--text-secondary);
 }
 
 /* Subtítulos y textos secundarios */
@@ -328,7 +337,7 @@ small, .text-muted, .categoria-tag {
 section[style*="background: var(--light)"],
 section[style*="background: #f5f5f5"],
 .buscador-section, .disponibilidad {
-    background: var(--bg-section-light) !important;
+    background: var(--logo-cream) !important;
 }
 
 section[style*="background: var(--light)"] h1,
@@ -351,8 +360,19 @@ input::placeholder, textarea::placeholder {
 
 /* Botones en fondos claros */
 .btn {
-    color: var(--white-smoke) !important;
+    color: var(--white-smoke);
 }
+.btn-outline {
+    background: transparent !important;
+    border: 2px solid var(--dusty-taupe) !important;
+    color: var(--dusty-taupe) !important;
+    box-shadow: none;
+}
+
+.btn-outline:hover {
+    background: rgba(169, 146, 125, 0.1) !important;
+}
+
 
 /* Carrito específico */
 .cart-item {
@@ -409,4 +429,140 @@ input::placeholder, textarea::placeholder {
     nav a {
         color: var(--white-smoke) !important;
     }
+}
+/* ===== HERO SUBTITLE ===== */
+.hero-subtitle {
+    display: block;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--dusty-taupe);
+    margin: 0 auto 2rem auto;
+    opacity: 0.92;
+}
+
+/* ===== CTA FINAL - BOTÓN SECUNDARIO ===== */
+.cta-section a.btn[style],
+.cta-section .btn-large {
+    background: rgba(169, 146, 125, 0.18) !important;
+    border: 2px solid var(--dusty-taupe) !important;
+    color: var(--dusty-taupe) !important;
+    backdrop-filter: blur(8px);
+}
+
+.cta-section a.btn[style]:hover,
+.cta-section .btn-large:hover {
+    background: rgba(169, 146, 125, 0.38) !important;
+    transform: translateY(-8px) scale(1.05);
+}
+
+.metodo-pago-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.metodo-card {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--dusty-taupe);
+    border-radius: 10px;
+    font-size: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+/* Ocultas el radio real */
+.metodo-card input {
+    display: none;
+}
+
+/* Hover */
+.metodo-card:hover {
+    background: rgba(169, 146, 125, 0.1);
+}
+
+/* Seleccionado */
+.metodo-card:has(input:checked) {
+    background: var(--dusty-taupe);
+    color: var(--white-smoke);
+}
+
+/* LOGIN ESPECIAL */
+/* LOGIN ESPECIAL */
+.login-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--papaya-whip), #e8d9c0);
+}
+
+.login-card {
+    background: white;
+    padding: 45px 40px 50px;
+    border-radius: 28px;
+    box-shadow: var(--shadow-hover);
+    width: 100%;
+    max-width: 460px;
+    margin: auto;
+    border: 1px solid rgba(193, 18, 31, 0.08);
+}
+
+/* Logo circular */
+.login-logo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid white;
+    box-shadow: 0 8px 25px rgba(0, 48, 73, 0.15);
+    margin: 0 auto 18px;
+    display: block;
+    background: white;
+}
+
+/* Estilos específicos para el login */
+.login-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--dark);
+    text-align: center;
+    font-weight: 700;
+}
+
+.login-subtitle {
+    color: #7f8c8d;
+    font-size: 1.05em;
+    margin: 0;
+    text-align: center;
+    font-weight: 500;
+}
+/* El resto de utilidades, responsive, animaciones, login, etc. permanecen iguales */
+
+.imagen {
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+.producto:hover .imagen {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+.producto:hover .quick-add {
+    transform: scale(1.2);
 }
