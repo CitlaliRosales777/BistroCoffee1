@@ -9,7 +9,7 @@ if (!usuarioLogueado()) {
 
 $usuario = getUsuarioActual($conn);
 if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
-    die('❌ Acceso solo para Administradores');
+    die(' Acceso solo para Administradores');
 }
 ?>
 <!DOCTYPE html>
@@ -67,7 +67,7 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
             
             <?php
-            // Stats reales de tu DB
+            // Stats reales
             $stats = [
                 'productos' => db_fetch_one($conn, "SELECT COUNT(*) as total FROM Productos")['total'],
                 'reservas' => db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Pendiente'")['total'] ?? 0,
@@ -121,8 +121,8 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
                             <th style="padding: 1.5rem 1rem; text-align: right;">Acciones</th>
                         </tr>
                     </thead>
-                    <!-- TABLA RESERVAS CORREGIDA -->
 <tbody>
+
     <?php if (empty($reservas)): ?>
         <tr>
             <td colspan="5" style="padding: 3rem; color: var(--text-light); text-align: center;">
@@ -131,7 +131,6 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
         </tr>
     <?php else: 
         foreach ($reservas as $reserva): 
-            // ✅ FIX TERNARIO CON PARÉNTESIS
             $estado_style = '';
             if ($reserva['Estado'] == 'Pendiente') {
                 $estado_style = 'background: #fff3cd; color: #856404;';

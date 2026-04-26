@@ -566,3 +566,8 @@ input::placeholder, textarea::placeholder {
 .producto:hover .quick-add {
     transform: scale(1.2);
 }
+@media print {
+    .no-print { display: none !important; }
+    body * { visibility: hidden; }
+    .ticket-print, .ticket-print * { visibility: visible; }
+}

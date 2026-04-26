@@ -17,7 +17,7 @@ $total_ingresos = db_fetch_one($conn, "SELECT COALESCE(SUM(Total), 0) as total F
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>📄 Reporte Menú - <?= date('d/m/Y') ?></title>
+    <title>Reporte Menú - <?= date('d/m/Y') ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -91,7 +91,7 @@ $total_ingresos = db_fetch_one($conn, "SELECT COALESCE(SUM(Total), 0) as total F
 </head>
 <body>
     <div class="header">
-        <h1>🍽️ BISTRO COFFEE</h1>
+        <h1>BISTRO&COFFEE</h1>
         <p>REPORTE COMPLETO DEL MENÚ</p>
         <p><strong>Generado:</strong> <?= date('d/m/Y H:i:s') ?></p>
     </div>
@@ -138,12 +138,12 @@ $total_ingresos = db_fetch_one($conn, "SELECT COALESCE(SUM(Total), 0) as total F
     </table>
 
     <div class="footer">
-        <p>📊 <strong>Estadísticas:</strong> <?= $total_ventas ?> ventas | $<?= number_format($total_ingresos, 2) ?> ingresos</p>
+        <p><strong>Estadísticas:</strong> <?= $total_ventas ?> ventas | $<?= number_format($total_ingresos, 2) ?> ingresos</p>
         <p>Generado por el sistema administrativo • Bistro Coffee <?= date('Y') ?></p>
     </div>
 
     <div class="no-print" style="position: fixed; top: 20px; right: 20px; background: #007bff; color: white; padding: 10px 20px; border-radius: 25px; font-weight: 600; cursor: pointer;" onclick="window.print()">
-        🖨️ IMPRIMIR PDF
+        IMPRIMIR PDF
     </div>
 
     <script>

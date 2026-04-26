@@ -106,6 +106,25 @@ function statsReservas($conn) {
         'hoy' => $hoy
     ];
 }
+// ✅ FUNCIÓN statsReservas para ADMIN
+function statsReservasA($conn) {
+    try {
+        $total = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas")['total'] ?? 0;
+        $pendientes = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Pendiente'")['total'] ?? 0;
+        $confirmadas = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Confirmada'")['total'] ?? 0;
+        $hoy = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE CAST(Fecha AS DATE) = CAST(GETDATE() AS DATE)")['total'] ?? 0;
+        
+        return [
+            'total' => (int)$total,
+            'pendientes' => (int)$pendientes,
+            'confirmadas' => (int)$confirmadas,
+            'hoy' => (int)$hoy
+        ];
+    } catch (Exception $e) {
+        return ['total' => 0, 'pendientes' => 0, 'confirmadas' => 0, 'hoy' => 0];
+    }
+}
+
+
 ?>
 
-//AQUI SOLO SIRVE DE AYUDA EN LAS RESERVAS NO HACE MUCHO SOLO LANZAR MENSAJES DE CONFIRMACION

@@ -8,7 +8,7 @@ function usuarioLogueado() { return false; } // Fallback
     <nav class="nav-container">
         <link rel="stylesheet" href="../assets/css/style.css?v=42">
         <a href="/" class="logo">
-        <img src="/assets/images/logo-oficial.jpg" alt="Bistro Coffee" class="logo-img">
+        <img src="/assets/images/logo.png" alt="Bistro Coffee" class="logo-img">
         </a>
         <a href="index.php" class="logo">Bistro & <span>Coffee</span></a>
         <ul>

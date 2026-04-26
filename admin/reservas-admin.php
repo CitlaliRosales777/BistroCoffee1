@@ -65,7 +65,6 @@ $stats = statsReservas($conn);
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-1">
-                    <i class="fas fa-calendar-check text-warning me-2"></i>
                     Gestión de Reservas
                 </h1>
                 <small class="text-muted">Controla todas las reservas del restaurante</small>
@@ -84,30 +83,32 @@ $stats = statsReservas($conn);
         <?php endif; ?>
 
         <!-- STATS -->
-        <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow-sm h-100 bg-primary text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['total'] ?></h2>
-                        <p class="mb-0">Total Reservas</p>
-                    </div>
-                </div>
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card border-0 shadow-sm h-100 bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar fa-3x mb-3 opacity-75"></i>
+                <h2 class="display-5 fw-bold"><?= $stats['total'] ?? 0 ?></h2>
+                <p class="mb-0">Total Reservas</p>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow-sm h-100 bg-warning text-dark">
-                    <div class="card-body text-center">
-                        <i class="fas fa-clock fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['pendientes'] ?></h2>
-                        <p class="mb-0">Pendientes</p>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card border-0 shadow-sm h-100 bg-warning text-dark">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x mb-3 opacity-75"></i>
+                <h2 class="display-5 fw-bold"><?= $stats['pendientes'] ?? 0 ?></h2>
+                <p class="mb-0">Pendientes</p>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow-sm h-100 bg-success text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar-day fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['hoy'] ?></h2>
-                        <p class="mb-0">Hoy</p>
-                    </div>
-                </div
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card border-0 shadow-sm h-100 bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-day fa-3x mb-3 opacity-75"></i>
+                <h2 class="display-5 fw-bold"><?= $stats['hoy'] ?? 0 ?></h2>
+                <p class="mb-0">Hoy</p>
+            </div>
+        </div>
+    </div>
+</div>

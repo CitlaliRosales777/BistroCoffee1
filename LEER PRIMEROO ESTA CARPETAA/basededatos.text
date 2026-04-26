@@ -213,3 +213,22 @@ UPDATE Productos
 SET Imagen = 'default.jpg' 
 WHERE Imagen IS NULL;
 GO
+
+USE CoffeBistro;
+GO
+
+-- Tabla simple para caja (SIN foreign keys)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Ventas_Caja' AND xtype='U')
+BEGIN
+    CREATE TABLE Ventas_Caja (
+        Id_Venta INT IDENTITY(1,1) PRIMARY KEY,
+        Fecha DATETIME DEFAULT GETDATE(),
+        Cajero VARCHAR(100),
+        Total DECIMAL(10,2),
+        Propina DECIMAL(10,2) DEFAULT 0,
+        Metodo_Pago VARCHAR(50),
+        Moneda VARCHAR(10) DEFAULT 'MXN',
+        Productos TEXT  -- JSON de productos
+    );
+    PRINT '✅ Tabla Ventas_Caja creada';
+END

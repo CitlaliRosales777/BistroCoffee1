@@ -42,7 +42,7 @@ require_once 'config/database.php';
                         <i class="fas fa-laptop"></i>
                     </div>
                     <h3>Menú Digital</h3>
-                    <p>Explora nuestro menú interactivo con fotos HD, descripciones detalladas y precios actualizados en tiempo real.</p>
+                    <p>Explora nuestro menú interactivo con fotos, descripciones detalladas y precios actualizados en tiempo real.</p>
                 </div>
                 
                 <div class="service-card card">

@@ -116,7 +116,7 @@ $productos = db_fetch_all($conn, "SELECT * FROM Productos ORDER BY Id_Producto D
         <!-- FORM AGREGAR/EDITAR PRODUCTO -->
         <div class="form-section card" style="margin-bottom: 3rem; padding: 2.5rem;">
             <h3 style="color: var(--text-primary); margin-bottom: 2rem; font-size: 1.5rem;">
-                ➕ Agregar Nuevo Producto
+                Agregar Nuevo Producto
             </h3>
             <form method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; max-width: 1200px;">
                 <div>
@@ -160,7 +160,7 @@ $productos = db_fetch_all($conn, "SELECT * FROM Productos ORDER BY Id_Producto D
         <div class="table-section card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h3 style="color: var(--text-primary); margin: 0; font-size: 1.5rem;">
-                    📋 Productos del Menú (<?= count($productos) ?>)
+                    Productos del Menú (<?= count($productos) ?>)
                 </h3>
             </div>
             

@@ -68,7 +68,7 @@ try {
 
             <?php elseif ($rol == 'Cajero'): ?>
                 <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                    <a href="#" class="dashboard-card card">
+                    <a href="caja.php" class="dashboard-card card">
                         <i class="fas fa-cash-register" style="font-size: 3rem; color: var(--dusty-taupe); margin-bottom: 1.5rem;"></i>
                         <h3>Caja Rápida</h3>
                         <p>Registrar ventas</p>
