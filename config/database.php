@@ -76,4 +76,5 @@ if (isset($_GET['debug'])) {
     echo "Driver: sqlsrv\n";
     echo "</pre>";
 }
+
 ?>

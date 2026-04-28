@@ -76,10 +76,10 @@ if ($_POST) {
                 
                 $ventaId = $conn->lastInsertId();
                 $_SESSION['carrito'] = [];
-                $_SESSION['mensaje'] = "✅ Venta #$ventaId procesada!<br>Total: $$totalFinal $moneda";
+                $_SESSION['mensaje'] = "Venta #$ventaId procesada!<br>Total: $$totalFinal $moneda";
                 
             } catch (Exception $e) {
-                $_SESSION['mensaje'] = "❌ Error: " . $e->getMessage();
+                $_SESSION['mensaje'] = "Error: " . $e->getMessage();
             }
         }
     }
@@ -128,7 +128,7 @@ $productos = db_fetch_all($conn, "
         .carrito-item:hover .btn-accion-carrito { opacity: 1; }
         .buscador-input { border-radius: 25px; }
         
-        /* ⭐ CONTROL COMPACTO DE CANTIDAD */
+        /* CONTROL COMPACTO DE CANTIDAD */
         .control-cantidad-compact {
             position: sticky;
             top: 20px;
@@ -419,10 +419,10 @@ $productos = db_fetch_all($conn, "
                             <!-- Reemplaza el botón IMPRIMIR existente en el carrito -->
 <div class="mt-2">
     <button type="button" onclick="previewTicket()" class="btn btn-info w-100 py-2 fs-6 fw-bold rounded-3 shadow me-1">
-        <i class="fas fa-eye me-2"></i> 👁️ PREVIEW TICKET
+        <i class="fas fa-eye me-2"></i> PREVIEW TICKET
     </button>
     <button type="button" onclick="imprimirTicket()" class="btn btn-warning w-100 py-2 fs-6 fw-bold rounded-3 shadow">
-        <i class="fas fa-print me-2"></i> 🖨️ IMPRIMIR DIRECTO
+        <i class="fas fa-print me-2"></i> IMPRIMIR DIRECTO
     </button>
 </div>
                             <?php endif; ?>

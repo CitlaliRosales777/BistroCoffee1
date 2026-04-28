@@ -6,7 +6,7 @@ $usuario = requiereRol($conn, ['Cajero']);
 
 // Verificar que hay datos
 if (empty($_SESSION['carrito']) && empty($_POST['datos']) && empty($_GET['datos'])) {
-    die('❌ No hay datos para imprimir');
+    die('No hay datos para imprimir');
 }
 
 // Obtener datos del POST/GET
@@ -155,16 +155,16 @@ $moneda = $datosTicket['moneda'] ?? 'MXN';
 
     <!-- AUTO-IMPRIMIR -->
     <script>
-        console.log('📄 Ticket cargado: <?= htmlspecialchars($datosTicket['ticketId'] ?? 'N/A') ?>');
+        console.log('Ticket cargado: <?= htmlspecialchars($datosTicket['ticketId'] ?? 'N/A') ?>');
         
         if (window.opener && !window.location.search.includes('preview')) {
             setTimeout(() => {
-                console.log('🖨️ Auto-imprimiendo...');
+                console.log('Auto-imprimiendo...');
                 window.print();
             }, 500);
             
             window.onafterprint = function() {
-                console.log('✅ Impresión completada');
+                console.log('Impresión completada');
                 window.close();
             };
         }

@@ -232,3 +232,48 @@ BEGIN
     );
     PRINT '✅ Tabla Ventas_Caja creada';
 END
+
+
+-- Agregar columna estado a Pagos
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.Pagos') AND name = 'Estado')
+BEGIN
+    ALTER TABLE Pagos 
+    ADD Estado VARCHAR(20) DEFAULT 'pendiente';
+    PRINT '✅ Columna Estado agregada a Pagos';
+END
+GO
+
+USE CoffeBistro;
+-- 1. AGREGAR COLUMNA Estado_Cocina a Ventas_Caja
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.Ventas_Caja') AND name = 'Estado_Cocina')
+BEGIN
+    ALTER TABLE Ventas_Caja 
+    ADD Estado_Cocina VARCHAR(20) DEFAULT 'ingreso';
+    PRINT '✅ Estado_Cocina AGREGADA';
+END
+
+-- 2. Marcar TODAS las órdenes existentes como NUEVAS
+UPDATE Ventas_Caja 
+SET Estado_Cocina = 'ingreso' 
+WHERE Estado_Cocina IS NULL OR Estado_Cocina = '';
+
+-- 3. Crear INDEX para velocidad
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Ventas_Cocina_Estado')
+BEGIN
+    CREATE INDEX IX_Ventas_Cocina_Estado 
+    ON Ventas_Caja(Estado_Cocina, Fecha);
+    PRINT '✅ Index creado';
+END
+
+-- 4. VERIFICAR (debe mostrar tus órdenes)
+-- ✅ QUERY CORREGIDA para TEXT
+SELECT TOP 10 
+    Id_Venta, Cajero, Fecha, Total, Moneda, 
+    Estado_Cocina, 
+    CASE 
+        WHEN LEN(CAST(Productos AS NVARCHAR(MAX))) > 100 
+        THEN LEFT(CAST(Productos AS NVARCHAR(MAX)), 100) + '...'
+        ELSE CAST(Productos AS NVARCHAR(MAX))
+    END as Productos
+FROM Ventas_Caja 
+ORDER BY Fecha DESC;
