@@ -1,76 +1,105 @@
 <?php
-require_once '../config/database.php';
+/**
+ * reservas-functions.php - SQL Server + Tabla 'Reservas' CORREGIDO
+ */
 
-// Crear tabla Reservas si no existe
-function crearTablaReservas($conn) {
-    $sql = "
-    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Reservas' AND xtype='U')
-    CREATE TABLE Reservas (
-        Id_Reserva INT PRIMARY KEY IDENTITY(1,1),
-        Nombre VARCHAR(120) NOT NULL,
-        Telefono VARCHAR(20),
-        Correo VARCHAR(120),
-        Personas INT NOT NULL,
-        Fecha DATE NOT NULL,
-        Hora TIME NOT NULL,
-        Duracion_Minutos INT DEFAULT 90,
-        Notas TEXT,
-        Estado VARCHAR(20) DEFAULT 'Pendiente',
-        Fecha_Creacion DATETIME DEFAULT GETDATE()
-    )";
-    $conn->exec($sql);
-}
-
-// Obtener disponibilidades
 function getDisponibilidades($conn, $fecha) {
-    crearTablaReservas($conn);
+    // ✅ SQL Server: CONVERT(DATE) + Hora exacta 5 chars
+    $sql = "
+        SELECT Hora, Personas, Nombre, Telefono, Estado 
+        FROM Reservas 
+        WHERE CONVERT(DATE, Fecha) = CONVERT(DATE, :fecha)
+        AND Estado IN ('Pendiente', 'Confirmada')
+        AND LEN(LTRIM(RTRIM(Hora))) = 5  -- '14:00' exacto
+        ORDER BY Hora ASC
+    ";
     
-    $sql = "SELECT 
-                CAST(Hora AS TIME) as hora,
-                COUNT(*) as ocupadas
-            FROM Reservas 
-            WHERE Fecha = ? AND Estado IN ('Pendiente', 'Confirmada')
-            GROUP BY CAST(Hora AS TIME)
-            HAVING COUNT(*) >= 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute(['fecha' => $fecha]);
     
-    $ocupadas = db_fetch_all($conn, $sql, [$fecha]);
-    return $ocupadas;
+    $disponibilidades = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $hora_limpia = trim($row['Hora']);
+        $disponibilidades[] = [
+            'hora' => $hora_limpia,
+            'personas' => (int)$row['Personas'],
+            'nombre' => $row['Nombre'],
+            'telefono' => $row['Telefono']
+        ];
+    }
+    return $disponibilidades;
 }
 
-// Guardar reserva
+function contarReservasPorHora($disponibilidades, $hora) {
+    // ✅ PHP 7.4+ compatible (sin arrow function)
+    $hora_limpia = trim($hora);
+    return count(array_filter($disponibilidades, function($disp) use ($hora_limpia) {
+        return trim($disp['hora']) === $hora_limpia;
+    }));
+}
+
+function validarReserva($conn, $fecha, $hora) {
+    $disponibilidades = getDisponibilidades($conn, $fecha);
+    $libre = contarReservasPorHora($disponibilidades, $hora) === 0;
+    return $libre;
+}
+
 function guardarReserva($conn, $datos) {
-    crearTablaReservas($conn);
+    // ✅ INSERT compatible SQL Server
+    $sql = "
+        INSERT INTO Reservas (Nombre, Telefono, Correo, Personas, Fecha, Hora, Duracion_Minutos, Notas, Estado) 
+        VALUES (:nombre, :telefono, :correo, :personas, :fecha, :hora, :duracion, :notas, 'Pendiente')
+    ";
     
-    $sql = "INSERT INTO Reservas (Nombre, Telefono, Correo, Personas, Fecha, Hora, Duracion_Minutos, Notas)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    return db_query($conn, $sql, [
-        $datos['nombre'],
-        $datos['telefono'],
-        $datos['correo'],
-        $datos['personas'],
-        $datos['fecha'],
-        $datos['hora'],
-        $datos['duracion'] ?? 90,
-        $datos['notas'] ?? ''
+    $stmt = $conn->prepare($sql);
+    return $stmt->execute([
+        'nombre' => $datos['nombre'],
+        'telefono' => $datos['telefono'],
+        'correo' => $datos['correo'] ?? null,
+        'personas' => (int)$datos['personas'],
+        'fecha' => $datos['fecha'],
+        'hora' => trim($datos['hora']),  // '14:00' limpio
+        'duracion' => 90,
+        'notas' => $datos['notas'] ?? null
     ]);
 }
 
-// Reservas recientes (para admin)
-function getReservasRecientes($conn, $limit = 10) {
-    crearTablaReservas($conn);
-    $sql = "SELECT TOP (?) * FROM Reservas ORDER BY Fecha_Creacion DESC";
-    return db_fetch_all($conn, $sql, [$limit]);
+function estaHorarioOcupado($disponibilidades, $hora) {
+    return contarReservasPorHora($disponibilidades, $hora) >= 1;
 }
-?>
 
-<?php
-function getReservas($conn, $filtros = []) {
-    $sql = "SELECT * FROM Reservas WHERE 1=1";
-    $params = [];
+function getReservasRecientes($conn, $limit = 10) {
+    // ✅ SQL Server: TOP sin bindValue
+    $sql = "SELECT TOP " . (int)$limit . " Id_Reserva, Nombre, Telefono, Fecha, Hora, Personas, Estado, created_at 
+            FROM Reservas 
+            WHERE Estado IN ('Pendiente', 'Confirmada')
+            ORDER BY created_at DESC";
     
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// ✅ DEBUG function
+function debugReservas($conn, $fecha) {
+    $disp = getDisponibilidades($conn, $fecha);
+    error_log("DEBUG $fecha: " . json_encode($disp));
+    return $disp;
+}
+
+function getReservas($conn, $filtros = []) {
+    $sql = "
+        SELECT Id_Reserva, Nombre, Telefono, Personas, 
+               CONVERT(VARCHAR(10), Fecha, 103) as FechaFmt,  -- ✅ dd/MM/yyyy
+               LEFT(Hora, 5) as Hora, 
+               Estado, Notas, created_at
+        FROM Reservas 
+        WHERE 1=1
+    ";
+    $params = [];
+
     if (!empty($filtros['fecha'])) {
-        $sql .= " AND Fecha = ?";
+        $sql .= " AND CONVERT(DATE, Fecha) = ?";
         $params[] = $filtros['fecha'];
     }
     if (!empty($filtros['estado'])) {
@@ -78,53 +107,30 @@ function getReservas($conn, $filtros = []) {
         $params[] = $filtros['estado'];
     }
     if (!empty($filtros['busqueda'])) {
-        $sql .= " AND (Nombre LIKE ? OR Email LIKE ? OR Telefono LIKE ?)";
-        $buscar = "%" . $filtros['busqueda'] . "%";
-        $params[] = $buscar; $params[] = $buscar; $params[] = $buscar;
+        $sql .= " AND (Nombre LIKE ? OR Telefono LIKE ?)";
+        $busqueda = "%{$filtros['busqueda']}%";
+        $params[] = $busqueda;
+        $params[] = $busqueda;
     }
-    
-    $sql .= " ORDER BY Fecha ASC, Hora ASC";
-    return db_fetch_all($conn, $sql, $params);
-}
 
-function actualizarEstadoReserva($conn, $id, $estado) {
-    return db_query($conn, "UPDATE Reservas SET Estado = ? WHERE Id_Reserva = ?", [$estado, $id]);
-}
+    $sql .= " ORDER BY Fecha DESC, Hora ASC";
 
-function eliminarReserva($conn, $id) {
-    return db_query($conn, "DELETE FROM Reservas WHERE Id_Reserva = ?", [$id]);
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function statsReservas($conn) {
-    $total = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas")['total'] ?? 0;
-    $pendientes = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Pendiente'")['total'] ?? 0;
-    $hoy = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE CONVERT(DATE, Created_At) = CONVERT(DATE, GETDATE())")['total'] ?? 0;
-    
-    return [
-        'total' => $total,
-        'pendientes' => $pendientes,
-        'hoy' => $hoy
-    ];
+    $sql = "
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN Estado = 'Pendiente' THEN 1 ELSE 0 END) as pendientes,
+            SUM(CASE WHEN Estado = 'Confirmada' THEN 1 ELSE 0 END) as confirmadas,
+            SUM(CASE WHEN CONVERT(DATE, Fecha) = CONVERT(DATE, GETDATE()) THEN 1 ELSE 0 END) as hoy
+        FROM Reservas
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total' => 0, 'pendientes' => 0, 'confirmadas' => 0, 'hoy' => 0];
 }
-// ✅ FUNCIÓN statsReservas para ADMIN
-function statsReservasA($conn) {
-    try {
-        $total = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas")['total'] ?? 0;
-        $pendientes = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Pendiente'")['total'] ?? 0;
-        $confirmadas = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE Estado = 'Confirmada'")['total'] ?? 0;
-        $hoy = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Reservas WHERE CAST(Fecha AS DATE) = CAST(GETDATE() AS DATE)")['total'] ?? 0;
-        
-        return [
-            'total' => (int)$total,
-            'pendientes' => (int)$pendientes,
-            'confirmadas' => (int)$confirmadas,
-            'hoy' => (int)$hoy
-        ];
-    } catch (Exception $e) {
-        return ['total' => 0, 'pendientes' => 0, 'confirmadas' => 0, 'hoy' => 0];
-    }
-}
-
-
 ?>
-

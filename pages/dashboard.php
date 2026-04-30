@@ -193,7 +193,7 @@ if ($rol == 'Chef') {
             <div class="list-group list-group-flush">
                 <?php 
                 $ultimas = array_slice($ordenes, 0, 8);
-                                function getEstadoClass($estado) {
+                function getEstadoClass($estado) {
                     if ($estado === 'ingreso') return 'warning';
                     if ($estado === 'elaboracion') return 'primary';
                     if ($estado === 'terminado') return 'info';
@@ -237,9 +237,7 @@ if ($rol == 'Chef') {
         </div>
     </div>
 </div>
-                
 
-           
                 
                 <?php if (empty($ultimas)): ?>
                 <div class="text-center p-5 text-muted">
