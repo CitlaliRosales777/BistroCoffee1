@@ -22,7 +22,7 @@ foreach($horasLaborables as $hora) {
 }
 $totalDisponibles = count($horasLaborables) - $totalOcupadas;
 
-debugReservas($conn, $fecha);
+
 ?>
 
 <!DOCTYPE html>

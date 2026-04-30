@@ -30,7 +30,6 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
             <li><a href="../index.php">Inicio</a></li>
             <li><a href="../pages/menu.php">Menú</a></li>
             <li><a href="../pages/reservas.php"><i class="fas fa-calendar-check"></i> Reservas</a></li>
-            <li><a href="../pages/pedidos.php">Pedidos</a></li>
             
             <li class="cart-item">
                 <a href="../pages/carrito.php" class="cart-link" title="Carrito (<?= $total_carrito ?> items)">
@@ -77,6 +76,7 @@ window.actualizarCarrito = function(total) {
     }
 };
 
+// Actualizar carrito al cargar la página
 if (typeof fetch !== 'undefined') {
     fetch('pages/carrito.php?action=count')
         .then(r => r.json())

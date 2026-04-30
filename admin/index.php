@@ -1,6 +1,7 @@
 <?php 
 require_once '../config/database.php';
 require_once '../includes/auth.php';
+require_once '../includes/reservas-functions.php'; // ✅ AGREGADO
 
 if (!usuarioLogueado()) {
     header('Location: ../pages/login.php');
@@ -11,6 +12,9 @@ $usuario = getUsuarioActual($conn);
 if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
     die(' Acceso solo para Administradores');
 }
+
+// ✅ CARGAR RESERVAS RECIENTES
+$reservas = getReservasRecientes($conn, 5);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -23,8 +27,9 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
 </head>
 <body style="background: var(--bg-section-light);">
     
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (igual) -->
     <aside class="sidebar" style="position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, var(--jet-black) 0%, var(--black) 100%); padding: 2rem 0; z-index: 1000; box-shadow: 4px 0 20px var(--shadow-heavy);">
+        <!-- ... sidebar igual ... -->
         <div class="sidebar-header" style="padding: 0 2rem 2rem; border-bottom: 1px solid rgba(169,146,125,0.2);">
             <h2 style="color: var(--white-smoke); font-size: 1.6rem; font-weight: 800;">Admin Panel</h2>
             <div style="color: var(--dusty-taupe); font-size: 0.9rem; margin-top: 0.5rem;">
@@ -65,7 +70,6 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
 
         <!-- STATS CARDS -->
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-            
             <?php
             // Stats reales
             $stats = [
@@ -75,6 +79,7 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
             ];
             ?>
 
+            <!-- Cards iguales... -->
             <div class="stat-card card">
                 <div class="stat-icon" style="font-size: 3rem; color: var(--dusty-taupe); margin-bottom: 1rem;">
                     <i class="fas fa-utensils"></i>
@@ -104,10 +109,9 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
                 </div>
                 <div class="stat-label" style="color: var(--text-secondary);">Usuarios Activos</div>
             </div>
-
         </div>
 
-        <!-- RECIENTES -->
+        <!-- ✅ TABLA RESERVAS CORREGIDA -->
         <div class="recent-section">
             <h3 style="color: var(--text-primary); margin-bottom: 2rem;">Reservas Recientes</h3>
             <div class="table-responsive">
@@ -121,52 +125,56 @@ if (!$usuario || $usuario['rol_nombre'] !== 'Administrador') {
                             <th style="padding: 1.5rem 1rem; text-align: right;">Acciones</th>
                         </tr>
                     </thead>
-<tbody>
-
-    <?php if (empty($reservas)): ?>
-        <tr>
-            <td colspan="5" style="padding: 3rem; color: var(--text-light); text-align: center;">
-                No hay reservas recientes
-            </td>
-        </tr>
-    <?php else: 
-        foreach ($reservas as $reserva): 
-            $estado_style = '';
-            if ($reserva['Estado'] == 'Pendiente') {
-                $estado_style = 'background: #fff3cd; color: #856404;';
-            } elseif ($reserva['Estado'] == 'Confirmada') {
-                $estado_style = 'background: #d1ecf1; color: #0c5460;';
-            } else {
-                $estado_style = 'background: #f8d7da; color: #721c24;';
-            }
-        ?>
-        <tr style="border-bottom: 1px solid rgba(169,146,125,0.1);">
-            <td style="padding: 1.5rem 1rem; font-weight: 600; color: var(--text-primary);"><?= htmlspecialchars($reserva['Nombre']) ?></td>
-            <td style="padding: 1.5rem 1rem; color: var(--text-secondary);"><?= date('d/m H:i', strtotime($reserva['Fecha'] . ' ' . $reserva['Hora'])) ?></td>
-            <td style="padding: 1.5rem 1rem; font-weight: 600; color: var(--dusty-taupe);"><?= $reserva['Personas'] ?>p</td>
-            <td style="padding: 1.5rem 1rem;">
-                <span style="padding: 0.5rem 1.2rem; border-radius: 25px; font-size: 0.85rem; font-weight: 600; <?= $estado_style ?>">
-                    <?= htmlspecialchars($reserva['Estado']) ?>
-                </span>
-            </td>
-            <td style="padding: 1.5rem 1rem; text-align: right;">
-                <a href="#" style="color: var(--dusty-taupe); margin-right: 1rem; padding: 0.5rem; border-radius: 6px; transition: all 0.3s;" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <a href="#" style="color: #dc3545; padding: 0.5rem; border-radius: 6px; transition: all 0.3s;" title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </td>
-        </tr>
-    <?php endforeach; endif; ?>
-</tbody>
+                    <tbody>
+                        <?php if (empty($reservas)): ?>
+                            <tr>
+                                <td colspan="5" style="padding: 3rem; color: var(--text-light); text-align: center;">
+                                    <i class="fas fa-calendar-times fa-2x mb-2" style="opacity: 0.5;"></i><br>
+                                    No hay reservas recientes
+                                </td>
+                            </tr>
+                        <?php else: 
+                            foreach ($reservas as $reserva): 
+                                $estado_style = '';
+                                if ($reserva['Estado'] == 'Pendiente') {
+                                    $estado_style = 'background: #fff3cd; color: #856404;';
+                                } elseif ($reserva['Estado'] == 'Confirmada') {
+                                    $estado_style = 'background: #d1ecf1; color: #0c5460;';
+                                } else {
+                                    $estado_style = 'background: #f8d7da; color: #721c24;';
+                                }
+                            ?>
+                            <tr style="border-bottom: 1px solid rgba(169,146,125,0.1);">
+                                <td style="padding: 1.5rem 1rem; font-weight: 600; color: var(--text-primary);">
+                                    <?= htmlspecialchars($reserva['Nombre']) ?>
+                                </td>
+                                <!-- ✅ CORREGIDO: Usa Fecha + Hora correctamente -->
+                                <td style="padding: 1.5rem 1rem; color: var(--text-secondary);">
+                                    <?= date('d/m', strtotime($reserva['Fecha'])) ?> <strong><?= substr($reserva['Hora'], 0, 5) ?></strong>
+                                </td>
+                                <td style="padding: 1.5rem 1rem; font-weight: 600; color: var(--dusty-taupe);">
+                                    <?= $reserva['Personas'] ?>p
+                                </td>
+                                <td style="padding: 1.5rem 1rem;">
+                                    <span style="padding: 0.5rem 1.2rem; border-radius: 25px; font-size: 0.85rem; font-weight: 600; <?= $estado_style ?>">
+                                        <?= htmlspecialchars($reserva['Estado']) ?>
+                                    </span>
+                                </td>
+                                <td style="padding: 1.5rem 1rem; text-align: right;">
+                                    <a href="reservas-admin.php" style="color: var(--dusty-taupe); margin-right: 1rem; padding: 0.5rem; border-radius: 6px; transition: all 0.3s; text-decoration: none;" title="Ver todas">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                    </tbody>
                 </table>
             </div>
         </div>
     </main>
 
+    <!-- Scripts y estilos iguales... -->
     <script>
-    // Sidebar hover
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('mouseenter', function() {
             this.style.background = 'rgba(169,146,125,0.15)';

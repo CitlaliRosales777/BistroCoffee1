@@ -5,18 +5,47 @@ require_once '../includes/reservas-functions.php';
 
 $usuario = requiereRol($conn, ['Administrador']);
 
-// ✅ INICIALIZAR variables (evita warnings)
+// ✅ INICIALIZAR TODO PRIMERO
 $mensaje = '';
 $filtros = [];
+$stats = [];
+$reservas = [];
 
-// Filtros GET
+// Filtros GET (ANTES de cualquier lógica)
 $filtros['fecha'] = $_GET['fecha'] ?? '';
 $filtros['estado'] = $_GET['estado'] ?? '';
 $filtros['busqueda'] = $_GET['buscar'] ?? '';
 
-?>
+// ✅ LIMPIAR FILTROS
+if (isset($_GET['limpiar'])) {
+    header('Location: reservas-admin.php');
+    exit;
+}
 
+// ✅ PROCESAR ACCIONES
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['confirmar'])) {
+        actualizarEstadoReserva($conn, $_POST['id'], 'Confirmada');
+        $mensaje = '✅ Reserva confirmada';
+    } elseif (isset($_POST['cancelar'])) {
+        actualizarEstadoReserva($conn, $_POST['id'], 'Cancelada');
+        $mensaje = '❌ Reserva cancelada';
+    } elseif (isset($_POST['completar'])) {
+        actualizarEstadoReserva($conn, $_POST['id'], 'Completada');
+        $mensaje = '🏁 Reserva completada';
+    } elseif (isset($_POST['eliminar'])) {
+        eliminarReserva($conn, $_POST['id']);
+        $mensaje = '🗑️ Reserva eliminada';
+    }
+    
+    $query = http_build_query($filtros);
+    header("Location: reservas-admin.php?$query");
+    exit;
+}
 
+// ✅ 🎯 CAMBIO PRINCIPAL: CARGAR STATS DESPUÉS DE PROCESAR ACCIONES
+$stats = statsReservas($conn);
+$reservas = getReservas($conn, $filtros);
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +70,7 @@ $filtros['busqueda'] = $_GET['buscar'] ?? '';
     </style>
 </head>
 <body>
-    <?php include 'index.php'; // Tu sidebar ?>
+    <?php include 'index.php'; ?>
 
     <main class="container-fluid px-4 py-4" style="margin-left: 280px;">
         <!-- HEADER -->
@@ -66,46 +95,6 @@ $filtros['busqueda'] = $_GET['buscar'] ?? '';
                 <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
-
-        <!-- STATS -->
-        <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow h-100 text-white bg-primary">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['total'] ?? 0 ?></h2>
-                        <p class="mb-0">Total Reservas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow h-100 text-dark bg-warning">
-                    <div class="card-body text-center">
-                        <i class="fas fa-clock fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['pendientes'] ?? 0 ?></h2>
-                        <p class="mb-0">Pendientes</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow h-100 text-white bg-success">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar-day fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['confirmadas'] ?? 0 ?></h2>
-                        <p class="mb-0">Confirmadas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card stats-card border-0 shadow h-100 text-white bg-info">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar-day fa-3x mb-3 opacity-75"></i>
-                        <h2 class="display-5 fw-bold"><?= $stats['hoy'] ?? 0 ?></h2>
-                        <p class="mb-0">Hoy</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- FILTROS -->
         <div class="card shadow mb-4">
@@ -146,7 +135,7 @@ $filtros['busqueda'] = $_GET['buscar'] ?? '';
             <div class="card-header d-flex justify-content-between align-items-center bg-light">
                 <h5 class="mb-0">
                     <i class="fas fa-list me-2"></i>
-                    Reservas (<?= count($reservas ?? []) ?>)
+                    Reservas (<?= count($reservas) ?>)
                 </h5>
                 <a href="?limpiar=1" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-refresh"></i> Limpiar filtros
@@ -175,72 +164,90 @@ $filtros['busqueda'] = $_GET['buscar'] ?? '';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($reservas as $reserva): ?>
-                            <tr>
-                                <td><strong><?= $reserva['FechaFmt'] ?></strong></td>
-                                <td><strong class="text-primary"><?= $reserva['Hora'] ?></strong></td>
-                                <td>
-                                    <span class="badge bg-info fs-6"><?= $reserva['Personas'] ?>p</span>
-                                </td>
-                                <td><?= htmlspecialchars($reserva['Nombre']) ?></td>
-                                <td>
-                                    <a href="tel:<?= htmlspecialchars($reserva['Telefono']) ?>" class="text-decoration-none">
-                                        <?= htmlspecialchars($reserva['Telefono']) ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <?php 
-                                    $badgeClass = match($reserva['Estado']) {
-                                        'Confirmada' => 'bg-success',
-                                        'Pendiente' => 'bg-warning text-dark',
-                                        'Completada' => 'bg-secondary',
-                                        'Cancelada' => 'bg-danger',
-                                        default => 'bg-light'
-                                    };
-                                    ?>
-                                    <span class="badge <?= $badgeClass ?> status-badge px-3 py-2">
-                                        <?= $reserva['Estado'] ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <?php if (!empty($reserva['Notas'])): ?>
-                                        <span class="text-muted small" title="<?= htmlspecialchars($reserva['Notas']) ?>">
-                                            <i class="fas fa-note-sticky me-1"></i><?= strlen($reserva['Notas']) > 20 ? substr($reserva['Notas'], 0, 20) . '...' : $reserva['Notas'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="table-actions">
-                                    <?php if ($reserva['Estado'] == 'Pendiente'): ?>
-                                        <form method="POST" class="d-inline me-1">
-                                            <input type="hidden" name="id" value="<?= $reserva['Id_Reserva'] ?>">
-                                            <button type="submit" name="confirmar" class="btn btn-sm btn-success" title="Confirmar">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" class="d-inline me-1">
-                                            <input type="hidden" name="id" value="<?= $reserva['Id_Reserva'] ?>">
-                                            <button type="submit" name="cancelar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar reserva?')" title="Cancelar">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    <?php elseif ($reserva['Estado'] == 'Confirmada'): ?>
-                                        <form method="POST" class="d-inline">
-                                            <input type="hidden" name="id" value="<?= $reserva['Id_Reserva'] ?>">
-                                            <button type="submit" name="completar" class="btn btn-sm btn-outline-secondary" title="Marcar completada">
-                                                <i class="fas fa-flag-checkered"></i>
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="POST" class="d-inline">
-                                        <input type="hidden" name="id" value="<?= $reserva['Id_Reserva'] ?>">
-                                        <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar permanentemente?')" title="Eliminar">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
+    <?php foreach($reservas as $reserva): ?>
+    <tr>
+        <!-- 1️⃣ FECHA -->
+        <td><strong><?= htmlspecialchars($reserva['FechaFmt'] ?? (!empty($reserva['Fecha']) ? date('d/m/Y', strtotime($reserva['Fecha'])) : 'Sin fecha')) ?></strong></td>
+        
+        <!-- 2️⃣ HORA -->
+        <td><strong class="text-primary"><?= htmlspecialchars($reserva['Hora'] ?? trim(substr($reserva['Hora'] ?? '00:00', 0, 5))) ?></strong></td>
+        
+        <!-- 3️⃣ PERSONAS -->
+        <td><span class="badge bg-info fs-6"><?= (int)($reserva['Personas'] ?? 0) ?>p</span></td>
+        
+        <!-- 4️⃣ CLIENTE -->
+        <td><?= htmlspecialchars($reserva['Nombre'] ?? 'N/A') ?></td>
+        
+        <!-- 5️⃣ TELÉFONO -->
+        <td>
+            <a href="tel:<?= htmlspecialchars($reserva['Telefono'] ?? '') ?>" class="text-decoration-none">
+                <?= htmlspecialchars($reserva['Telefono'] ?? '') ?>
+            </a>
+        </td>
+        
+        <!-- 6️⃣ ESTADO -->
+        <td>
+            <?php 
+            $estado = $reserva['Estado'] ?? 'Pendiente';
+            $badgeClass = match($estado) {
+                'Confirmada' => 'bg-success',
+                'Pendiente' => 'bg-warning text-dark',
+                'Completada' => 'bg-secondary',
+                'Cancelada' => 'bg-danger',
+                default => 'bg-light'
+            };
+            ?>
+            <span class="badge <?= $badgeClass ?> status-badge px-3 py-2">
+                <?= htmlspecialchars($estado) ?>
+            </span>
+        </td>
+        
+        <!-- 7️⃣ NOTAS -->
+        <td>
+            <?php if (!empty($reserva['Notas'])): ?>
+                <span class="text-muted small" title="<?= htmlspecialchars($reserva['Notas']) ?>">
+                    <i class="fas fa-note-sticky me-1"></i>
+                    <?= strlen($reserva['Notas']) > 20 ? substr($reserva['Notas'], 0, 20) . '...' : $reserva['Notas'] ?>
+                </span>
+            <?php else: ?>
+                <span class="text-muted small">—</span>
+            <?php endif; ?>
+        </td>
+        
+       <!-- 8️⃣ ACCIONES -->
+<td class="table-actions">
+    <?php if (($reserva['Estado'] ?? '') == 'Pendiente'): ?>
+        <form method="POST" class="d-inline me-1">
+            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+            <button type="submit" name="confirmar" class="btn btn-sm btn-success" title="Confirmar">
+                <i class="fas fa-check"></i>
+            </button>
+        </form>
+        <form method="POST" class="d-inline me-1">
+            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+            <button type="submit" name="cancelar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar reserva?')" title="Cancelar">
+                <i class="fas fa-times"></i>
+            </button>
+        </form>
+    <?php elseif (($reserva['Estado'] ?? '') == 'Confirmada'): ?>
+        <form method="POST" class="d-inline">
+            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+            <button type="submit" name="completar" class="btn btn-sm btn-outline-secondary" title="Marcar completada">
+                <i class="fas fa-flag-checkered"></i>
+            </button>
+        </form>
+    <?php endif; ?>
+    <!-- Eliminar siempre -->
+    <form method="POST" class="d-inline">
+        <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+        <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar permanentemente?')" title="Eliminar">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </form>
+</td>
+    </tr>
+    <?php endforeach; ?>
+</tbody>
                     </table>
                 </div>
                 <?php endif; ?>
@@ -263,7 +270,6 @@ $filtros['busqueda'] = $_GET['buscar'] ?? '';
         window.location.href = 'reservas-admin.php?' + params.toString();
     }
 
-    // Enter en búsqueda
     document.getElementById('buscar_filtro').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') filtrar();
     });
