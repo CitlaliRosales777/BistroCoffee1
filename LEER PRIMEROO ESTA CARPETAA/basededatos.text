@@ -366,3 +366,366 @@ END
 UPDATE reservas SET Estado = 'Pendiente' WHERE Estado IS NULL OR Estado = '';
 PRINT '✅ Estado actualizado para registros existentes';
 GO
+
+
+
+-----------------------------------29-04-2026
+-- Ver estructura ACTUAL de tu tabla
+SELECT 
+    COLUMN_NAME, 
+    DATA_TYPE, 
+    IS_NULLABLE, 
+    COLUMN_DEFAULT,
+    CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'reservas'
+ORDER BY ORDINAL_POSITION;
+GO
+
+-- Si NO tienes 'Estado'
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.reservas') AND name = 'Estado')
+BEGIN
+    ALTER TABLE reservas ADD Estado VARCHAR(20) DEFAULT 'confirmada';
+    PRINT '✅ Estado AGREGADO';
+END
+
+-- Si NO tienes índices
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_reservas_fecha_hora' AND object_id = OBJECT_ID(N'dbo.reservas'))
+BEGIN
+    CREATE INDEX IX_reservas_fecha_hora ON reservas(fecha, hora);
+    PRINT '✅ Índice fecha_hora CREADO';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_reservas_telefono' AND object_id = OBJECT_ID(N'dbo.reservas'))
+BEGIN
+    CREATE INDEX IX_reservas_telefono ON reservas(telefono);
+    PRINT '✅ Índice telefono CREADO';
+END
+GO
+
+-- Marcar existentes como confirmadas
+UPDATE reservas SET Estado = 'confirmada' WHERE Estado IS NULL;
+GO
+
+
+
+-- Ver tus reservas actuales
+SELECT 
+    id, nombre, telefono, 
+    FORMAT(fecha, 'dd/MM/yyyy') AS fecha,
+    hora, personas, Estado,
+    created_at
+FROM reservas 
+ORDER BY fecha DESC, hora ASC;
+GO
+
+SELECT 
+    COLUMN_NAME, 
+    DATA_TYPE, 
+    IS_NULLABLE, 
+    COLUMN_DEFAULT,
+    CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'reservas'
+ORDER BY ORDINAL_POSITION;
+GO
+
+--
+USE CoffeBistro;
+GO
+
+-- 1. AGREGAR CONSTRAINT PRIMARY KEY a Id_Reserva (si no la tiene)
+IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE name = 'PK_reservas')
+BEGIN
+    ALTER TABLE reservas ADD CONSTRAINT PK_reservas PRIMARY KEY (Id_Reserva);
+    PRINT '✅ PRIMARY KEY agregada a Id_Reserva';
+END
+
+-- 2. AGREGAR índices para velocidad
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_reservas_fecha_hora')
+BEGIN
+    CREATE INDEX IX_reservas_fecha_hora ON reservas(Fecha, Hora);
+    PRINT '✅ Índice fecha_hora creado';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_reservas_telefono')
+BEGIN
+    CREATE INDEX IX_reservas_telefono ON reservas(Telefono);
+    PRINT '✅ Índice telefono creado';
+END
+
+-- 3. Marcar TODAS como Pendiente si Estado es NULL
+UPDATE reservas SET Estado = 'Pendiente' WHERE Estado IS NULL OR Estado = '';
+PRINT '✅ Estado actualizado para registros existentes';
+GO
+
+
+---
+-- 1. DIAGNÓSTICO (sin STRING_AGG)
+SELECT 
+    COUNT(*) as Total_Reservas,
+    COUNT(CASE WHEN LEN(LTRIM(RTRIM(Hora))) = 5 THEN 1 END) as Horas_Longitud5,
+    COUNT(CASE WHEN Estado = 'Pendiente' THEN 1 END) as Pendientes,
+    MIN(Hora) as Hora_Min, 
+    MAX(Hora) as Hora_Max
+FROM Reservas 
+WHERE CONVERT(DATE, Fecha) = CONVERT(DATE, GETDATE());
+
+-- 2. VER TODAS LAS HORAS HOY (para debug)
+SELECT DISTINCT 
+    Fecha, 
+    Hora, 
+    LEN(LTRIM(RTRIM(Hora))) as Longitud_Hora,
+    Estado
+FROM Reservas 
+WHERE CONVERT(DATE, Fecha) = CONVERT(DATE, GETDATE())
+ORDER BY Hora;
+
+-- 3. NORMALIZAR HORAS (ya ejecutada)
+UPDATE Reservas 
+SET Hora = LEFT(LTRIM(RTRIM(Hora)), 5)
+WHERE LEN(LTRIM(RTRIM(Hora))) > 5;
+
+-- 4. ESTADO Pendiente (ya ejecutada)
+UPDATE Reservas 
+SET Estado = 'Pendiente'
+WHERE Estado IS NULL OR Estado NOT IN ('Pendiente', 'Confirmada');
+
+-- 5. LIMPIAR DUPLICADOS (usa columna REAL de tu tabla)
+-- Reemplaza 'Fecha_Creacion' por tu columna de fecha (ver abajo)
+DELETE FROM Reservas 
+WHERE Id_Reserva NOT IN (
+    SELECT TOP 1 Id_Reserva 
+    FROM Reservas r2 
+    WHERE r2.Fecha = Reservas.Fecha AND r2.Hora = Reservas.Hora 
+    ORDER BY Id_Reserva
+);
+
+-- 6. VER COLUMNA de fecha creación (¿Fecha_Creacion?)
+SELECT 
+    COLUMN_NAME, 
+    DATA_TYPE 
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'Reservas' 
+AND COLUMN_NAME LIKE '%fecha%' OR COLUMN_NAME LIKE '%creac%';
+GO
+
+
+-- VER COLUMNA exacta de fecha creación
+SELECT 
+    COLUMN_NAME, 
+    DATA_TYPE, 
+    IS_NULLABLE 
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'Reservas'
+ORDER BY ORDINAL_POSITION;
+
+--
+USE CoffeBistro;
+GO
+
+-- 1. VER estado actual
+SELECT COUNT(*) as Total, 
+       COUNT(CASE WHEN LEN(Hora) = 5 THEN 1 END) as Horas_OK
+FROM Reservas;
+
+-- 2. NORMALIZAR HORAS (time → varchar HH:MM)
+UPDATE Reservas 
+SET Hora = FORMAT(Hora, 'HH:mm')
+WHERE LEN(Hora) != 5 OR Hora LIKE '%:%:%';
+
+-- 3. Estado Pendiente
+UPDATE Reservas SET Estado = 'Pendiente' 
+WHERE Estado IS NULL OR Estado = '';
+
+-- 4. VERIFICAR
+SELECT TOP 5 
+    FORMAT(Fecha, 'dd/MM/yyyy') as Fecha,
+    Hora, LEN(Hora) as Len_Hora, 
+    Estado
+FROM Reservas 
+ORDER BY Fecha DESC, Hora ASC;
+
+-- 5. LIMPIAR duplicados (mantiene 1 por hora)
+DELETE r1 FROM Reservas r1
+INNER JOIN (
+    SELECT Fecha, Hora, MIN(Id_Reserva) as MinId
+    FROM Reservas 
+    GROUP BY Fecha, Hora
+    HAVING COUNT(*) > 1
+) dup ON r1.Fecha = dup.Fecha AND r1.Hora = dup.Hora AND r1.Id_Reserva > dup.MinId;
+
+PRINT '✅ LIMPIEZA COMPLETA';
+GO
+
+
+--
+USE CoffeBistro;
+GO
+
+-- 1. VER problema primero
+SELECT 
+    Hora, 
+    LEN(Hora) as Longitud,
+    CASE 
+        WHEN Hora IS NULL THEN 'NULL'
+        WHEN LEN(Hora) = 0 THEN 'VACIO'
+        WHEN LEN(Hora) != 5 THEN 'LARGO: ' + CAST(LEN(Hora) AS VARCHAR)
+        ELSE 'OK'
+    END as Estado_Hora
+FROM Reservas 
+WHERE Hora IS NULL 
+   OR LEN(Hora) != 5 
+   OR Hora LIKE '%:%:%';
+
+-- 2. UPDATE SEGURO (maneja NULL y formatos)
+UPDATE Reservas 
+SET Hora = CASE 
+    WHEN Hora IS NULL THEN '00:00'
+    WHEN LEN(LTRIM(RTRIM(Hora))) = 0 THEN '00:00'
+    WHEN CHARINDEX(':', Hora) > 0 THEN 
+        LEFT(LEFT(LTRIM(RTRIM(Hora)), 5), 5)
+    ELSE LTRIM(RTRIM(Hora))
+END
+WHERE Hora IS NULL 
+   OR LEN(LTRIM(RTRIM(Hora))) != 5 
+   OR Hora LIKE '%:%:%';
+
+-- 3. VERIFICAR resultado
+SELECT 
+    COUNT(*) as Total,
+    COUNT(CASE WHEN LEN(Hora) = 5 THEN 1 END) as Horas_OK,
+    MIN(Hora) as Hora_Min,
+    MAX(Hora) as Hora_Max
+FROM Reservas;
+
+-- 4. Ejemplos
+SELECT TOP 10 Hora, LEN(Hora) as Len 
+FROM Reservas 
+ORDER BY Id_Reserva DESC;
+GO
+
+---
+USE CoffeBistro;
+GO
+
+PRINT '=== LIMPIEZA RESERVAS ===';
+
+-- Paso 1: Diagnosticar
+SELECT 'ANTES' as Paso, COUNT(*) as Total, SUM(CASE WHEN LEN(Hora) = 5 THEN 1 ELSE 0 END) as OK FROM Reservas;
+
+-- Paso 2: Manejar NULLs
+UPDATE Reservas SET Hora = '00:00' WHERE Hora IS NULL OR LEN(Hora) = 0;
+
+-- Paso 3: Normalizar formato
+UPDATE Reservas 
+SET Hora = CASE 
+    WHEN CHARINDEX(':', Hora) > 0 
+    THEN SUBSTRING(Hora, 1, CHARINDEX(':', Hora) + 2)
+    ELSE Hora 
+END;
+
+-- Paso 4: Cortar a 5 caracteres
+UPDATE Reservas 
+SET Hora = LEFT(LTRIM(RTRIM(Hora)), 5)
+WHERE LEN(LTRIM(RTRIM(Hora))) > 5;
+
+-- Paso 5: Estado
+UPDATE Reservas SET Estado = 'Pendiente' WHERE Estado NOT IN ('Pendiente', 'Confirmada');
+
+-- Paso 6: Eliminar duplicados (mantiene el más nuevo)
+WITH Duplicados AS (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY Fecha, Hora ORDER BY Id_Reserva DESC) as rn
+    FROM Reservas
+)
+DELETE FROM Duplicados WHERE rn > 1;
+
+-- FINAL: Verificar
+SELECT 'DESPUES' as Paso, COUNT(*) as Total, SUM(CASE WHEN LEN(Hora) = 5 THEN 1 ELSE 0 END) as OK FROM Reservas;
+
+SELECT TOP 5 FORMAT(Fecha, 'dd/MM/yyyy') as Fecha, Hora, LEN(Hora) as Len, Estado 
+FROM Reservas ORDER BY Id_Reserva DESC;
+GO
+
+
+--
+USE CoffeBistro;
+GO
+
+PRINT '=== LIMPIEZA AGRESIVA ===';
+
+-- 1. ELIMINAR índice
+IF EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_reservas_fecha_hora')
+    DROP INDEX IX_reservas_fecha_hora ON Reservas;
+
+-- 2. TEMPORALMENTE permitir NULLs
+ALTER TABLE Reservas ALTER COLUMN Hora VARCHAR(16) NULL;
+
+-- 3. NORMALIZAR SIN CAST (método directo)
+UPDATE Reservas 
+SET Hora = CASE 
+    WHEN Hora IS NULL OR LEN(Hora) = 0 THEN '00:00'
+    WHEN CHARINDEX(':', Hora) > 0 THEN 
+        SUBSTRING(Hora, 1, CHARINDEX(':', Hora) + 2)
+    ELSE LEFT(Hora, 5)
+END;
+
+-- 4. VER antes de forzar NOT NULL
+SELECT 
+    COUNT(*) as Total,
+    COUNT(Hora) as No_Nulls,
+    MIN(LEN(Hora)) as Min_Len,
+    MAX(LEN(Hora)) as Max_Len
+FROM Reservas;
+
+-- 5. FORZAR NOT NULL + VARCHAR(5)
+ALTER TABLE Reservas ALTER COLUMN Hora VARCHAR(5) NOT NULL;
+
+-- 6. VERIFICAR FINAL
+SELECT 
+    COUNT(*) as Total,
+    COUNT(CASE WHEN LEN(Hora) = 5 THEN 1 END) as Horas_OK
+FROM Reservas;
+
+SELECT TOP 5 FORMAT(Fecha, 'dd/MM/yyyy'), Hora, LEN(Hora), Estado 
+FROM Reservas ORDER BY Id_Reserva DESC;
+
+-- 7. RECREAR índice
+CREATE INDEX IX_reservas_fecha_hora ON Reservas(Fecha, Hora);
+
+PRINT '✅ ¡SIN ERRORES! Listo 🎉';
+GO
+
+--
+USE CoffeBistro;
+GO
+
+-- 1. ¿Cuántas tablas tienes?
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '%reserva%';
+
+-- 2. ¿Qué datos en Reservas?
+SELECT COUNT(*) as En_Reservas FROM Reservas;
+SELECT COUNT(*) as En_reservas FROM reservas;
+
+-- 3. Estructura Reservas
+SELECT TOP 8 * FROM Reservas;
+GO
+
+--
+USE CoffeBistro;
+GO
+
+-- 1. ¿Qué tablas existen?
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '%reserva%';
+
+-- 2. ¿Datos en Reservas?
+SELECT COUNT(*) as Total_Reservas, MIN(Fecha), MAX(Fecha) FROM Reservas;
+
+-- 3. Primeras 3 filas
+SELECT TOP 3 Id_Reserva, Nombre, Fecha, Hora, Estado FROM Reservas;
+
+-- 4. Estados únicos
+SELECT Estado, COUNT(*) as Cantidad FROM Reservas GROUP BY Estado;
+GO
+
+SELECT TOP 3 * FROM Reservas;
