@@ -4,7 +4,7 @@ require_once '../includes/auth.php';
 
 $usuario = requiereRol($conn, ['Chef', 'Administrador']);
 
-// ⭐ QUERY por ESTADO - AGREGADO 'cancelado'
+// ⭐ QUERY por ESTADO
 $estados = ['ingreso', 'elaboracion', 'terminado', 'entregado', 'cancelado'];
 $ordenesPorEstado = [];
 
@@ -28,7 +28,6 @@ foreach ($estados as $estado) {
     $ordenesPorEstado[$estado] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Contadores
 $nuevas = count($ordenesPorEstado['ingreso']);
 $proceso = count($ordenesPorEstado['elaboracion']);
 $listas = count($ordenesPorEstado['terminado']);
@@ -41,269 +40,188 @@ $canceladas = count($ordenesPorEstado['cancelado']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cocina Live - <?= htmlspecialchars($usuario['Nombre']) ?></title>
+    <title>Cocina Live - Bistro & Coffee</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ⭐ PALETA DE COLORES DEL PROYECTO */
-        :root { 
-            --black: #0a0908ff;
-            --jet-black: #22333bff;
-            --white-smoke: #f2f4f3ff;
-            --dusty-taupe: #a9927dff;
-            --stone-brown: #5e503fff;
-            --logo-cream: #F0EBE3;
-            --logo-gray: #8C8C8C;
-            --text-primary: var(--stone-brown);
-            --text-secondary: #4a4035;
-            --text-light: #8c7d6f;
-            --bg-card: var(--white-smoke);
-            --bg-section-light: #f8f7f5;
-            --shadow-light: rgba(94, 80, 63, 0.08);
-            --shadow-medium: rgba(94, 80, 63, 0.15);
-            --shadow-heavy: rgba(10, 9, 8, 0.25);
-            --status-disponible-bg: #e6f0e0;
-            --status-disponible-text: #2f4a2a;
-            --status-ocupado-bg: #f0e4e4;
-            --status-ocupado-text: #5c2a2a;
-            
-            /* Colores semánticos personalizados para cocina */
-            --bg-ingreso: linear-gradient(135deg, #fdf8ed, #f8f1dc);
-            --border-ingreso: #a9927d;
-            --bg-elaboracion: linear-gradient(135deg, #f2f4f3, #e8ebe7);
-            --border-elaboracion: #5e503f;
-            --bg-terminado: linear-gradient(135deg, #f8f7f5, #f0ede8);
-            --border-terminado: #8c7d6f;
-            --bg-entregado: linear-gradient(135deg, #f2f4f3, #e8ebe7);
-            --border-entregado: #a9927d;
-            --bg-cancelado: linear-gradient(135deg, #f8f7f5, #f0ede8);
-            --border-cancelado: #8c8c8c;
+        :root {
+            --cafe-dark: #3C2F2A;
+            --cafe-brown: #6B5A4A;
+            --cafe-taupe: #A9927D;
+            --cream: #F8F4ED;
+            --beige-light: #FAF7F2;
+            --beige-lighter: #FFFBF5;
+            --text-dark: #3C2F2A;
         }
 
-        /* ⭐ FONDO PRINCIPAL CON LA PALETA */
-        body { 
-            background: linear-gradient(135deg, var(--jet-black) 0%, var(--stone-brown) 50%, var(--dusty-taupe) 100%);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        body {
+            background: linear-gradient(to bottom, #FFFBF5, #F8F4ED);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
         }
-        
-        .seccion-cocina { 
-            display: flex; flex-direction: column;
-            min-height: 450px; border-radius: 20px; position: relative; 
-            transition: all 0.3s; cursor: pointer; 
-            background: var(--bg-card);
-            border: 3px solid transparent;
-            box-shadow: 0 10px 30px var(--shadow-medium);
+
+        /* HEADER estilo Bistro & Coffee */
+        .header-bistro {
+            background: var(--cafe-dark);
+            padding: 1rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
-        /* ⭐ CONTENEDOR DE CARDS CENTRADO */
-        .drop-zone {
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center;
+        .header-bistro .logo {
+            display: flex;
             align-items: center;
-            padding: 10px; 
-            overflow-y: auto;
             gap: 12px;
+            color: white;
+            text-decoration: none;
         }
-        
-        /* ⭐ SECCIONES CON PALETA PERSONALIZADA */
-        .seccion-ingreso { 
-            background: var(--bg-ingreso); 
-            border-color: var(--border-ingreso); 
-            color: var(--text-primary);
+        .header-bistro .logo img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
         }
-        .seccion-elaboracion { 
-            background: var(--bg-elaboracion); 
-            border-color: var(--border-elaboracion); 
-            color: var(--text-primary);
-        }
-        .seccion-terminado { 
-            background: var(--bg-terminado); 
-            border-color: var(--border-terminado); 
-            color: var(--text-primary);
-        }
-        .seccion-entregado { 
-            background: var(--bg-entregado); 
-            border-color: var(--border-entregado); 
-            color: var(--text-secondary);
-        }
-        .seccion-cancelado { 
-            background: var(--bg-cancelado); 
-            border-color: var(--border-cancelado); 
-            color: var(--text-light);
-        }
-        
-        .orden-card { 
-            background: var(--logo-cream); 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px var(--shadow-light); 
-            transition: all 0.3s; 
-            cursor: pointer;
-            border-left: 4px solid var(--dusty-taupe);
-            width: 100%; max-width: 220px;
-            height: 120px; 
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center; 
-            padding: 15px; position: relative;
-            color: var(--text-primary);
-        }
-        .orden-card:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 25px var(--shadow-medium); 
-            border-left-color: var(--stone-brown);
-        }
-        .orden-card.dragging { opacity: 0.5; transform: rotate(5deg); }
-        .orden-card:focus { outline: 3px solid var(--dusty-taupe); outline-offset: 2px; }
-        
-        /* CONTENIDO CENTRADO */
-        .orden-card h6 { 
-            margin-bottom: 8px !important; 
-            font-size: 1.1rem; 
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-        .orden-card .productos-list { 
-            min-height: 40px; display: flex; flex-direction: column; justify-content: center; 
-            margin: 8px 0; font-size: 0.85rem; line-height: 1.3; width: 100%;
-            color: var(--text-secondary);
-        }
-        .orden-card .productos-list .producto-item {
-            margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .orden-card .info-footer {
-            margin-top: auto; padding-top: 8px; border-top: 1px solid var(--bg-section-light); width: 100%;
-            display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;
-            color: var(--text-light);
-        }
-        .orden-card .badge.estado-badge {
-            position: absolute; top: 8px; right: 8px; font-size: 0.7rem; padding: 4px 8px;
-            background: var(--dusty-taupe); color: var(--logo-cream);
-            font-weight: 600;
-        }
-        
-        .header-seccion {
-            padding: 20px 20px 10px 20px;
-            border-radius: 20px 20px 0 0;
-            background: rgba(242, 244, 243, 0.9);
-            backdrop-filter: blur(10px);
-        }
-        
-        .header-seccion h5 {
-            color: var(--text-primary) !important;
+
+        .main-title {
+            color: var(--cafe-brown);
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
-        
-        .btn-estado { 
-            border-radius: 25px; 
-            font-size: 0.8rem; 
-            padding: 6px 12px; 
-            margin: 1px; 
-            min-width: 90px;
-            background: var(--dusty-taupe);
-            border-color: var(--stone-brown);
-            color: var(--logo-cream);
+
+        .seccion-cocina {
+            border-radius: 22px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 8px 25px rgba(107, 90, 74, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f0e9df;
+            height: 100%;
         }
-        .btn-estado.active { 
-            box-shadow: 0 0 0 3px rgba(169, 146, 125, 0.3); 
-            transform: scale(1.05);
-            background: var(--stone-brown);
+
+        .seccion-cocina:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(107, 90, 74, 0.12);
         }
-        
-        .drag-over { 
-            transform: scale(1.02) !important; 
-            box-shadow: 0 15px 40px var(--shadow-heavy) !important; 
-            border-color: var(--stone-brown) !important;
-        }
-        
-        /* HEADER */
-        .text-white { color: var(--logo-cream) !important; }
-        .text-white-50 { color: rgba(240, 235, 227, 0.7) !important; }
-        
-        /* BADGES PERSONALIZADOS */
-        .badge {
-            background: var(--dusty-taupe) !important;
-            color: var(--logo-cream) !important;
+
+        .header-seccion {
+            background: linear-gradient(135deg, #D4BFA8, #B89E7E);
+            color: white;
+            padding: 18px 20px;
             font-weight: 600;
         }
-        
-        /* Scrollbar personalizada */
-        .drop-zone::-webkit-scrollbar {
-            width: 6px;
+
+        .drop-zone {
+            background: var(--beige-lighter);
+            min-height: 420px;
+            padding: 20px;
+            overflow-y: auto;
+            gap: 14px;
         }
-        .drop-zone::-webkit-scrollbar-track {
-            background: transparent;
+
+        .orden-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border-left: 5px solid var(--cafe-taupe);
+            padding: 16px;
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .drop-zone::-webkit-scrollbar-thumb {
-            background: var(--dusty-taupe);
-            border-radius: 3px;
+
+        .orden-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(169, 146, 125, 0.18);
+            border-left-color: var(--cafe-brown);
         }
-        
-        /* BOTONES HEADER */
-        .btn-outline-light {
-            border-color: var(--logo-cream) !important;
-            color: var(--logo-cream) !important;
+
+        .orden-card .badge-estado {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.78rem;
+            padding: 4px 9px;
+            border-radius: 20px;
+            background: rgba(107, 90, 74, 0.9);
+            color: white;
+            font-weight: 600;
         }
-        .btn-outline-light:hover {
-            background: var(--logo-cream) !important;
-            color: var(--stone-brown) !important;
+
+        .seccion-ingreso .orden-card { border-left-color: #C9A97E; }
+        .seccion-elaboracion .orden-card { border-left-color: #A17E5F; }
+        .seccion-terminado .orden-card { border-left-color: #6B5A4A; }
+        .seccion-entregado .orden-card { border-left-color: #B89E7E; }
+        .seccion-cancelado .orden-card { 
+            border-left-color: #9E9E9E; 
+            opacity: 0.92; 
         }
-        .btn-warning {
-            background: var(--dusty-taupe) !important;
-            border-color: var(--dusty-taupe) !important;
-            color: var(--logo-cream) !important;
+
+        .info-footer {
+            font-size: 0.9rem;
+            color: #6b5a4a;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #f0e9df;
         }
-        
-        @media (max-width: 768px) { 
-            .seccion-cocina { margin-bottom: 20px; } 
-            .orden-card { height: 110px; padding: 12px; max-width: 200px; }
+
+        .badge {
+            background: var(--cafe-taupe);
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid py-4">
-        <!-- HEADER -->
-        <div class="row align-items-center mb-4">
-            <div class="col-md-6">
-                <h1 class="text-white mb-1">
-                    <i class="fas fa-utensils fa-2x me-3"></i>
-                    Cocina Live
-                </h1>
-                <small class="text-white-50">
-                    <?= $nuevas + $proceso + $listas ?> órdenes activas | <?= date('H:i:s') ?>
-                </small>
-            </div>
-            <div class="col-md-6 text-md-end mt-2 mt-md-0">
-                <div class="btn-group" role="group">
-                    <a href="dashboard.php" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-home"></i>
+
+    <!-- HEADER -->
+    <header class="header-bistro">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <a href="#" class="logo">
+                        <img src="../assets/images/logo.png" alt="Bistro Coffee" style="width: 60px; height: 60px; border-radius: 50%;">
+                        <div>
+                            <strong style="font-size:1.4rem;">Bistro & Coffee</strong><br>
+                            <small style="opacity:0.9;">Cocina Live</small>
+                        </div>
                     </a>
-                    <button class="btn btn-outline-light btn-sm" onclick="location.reload()">
-                        <i class="fas fa-refresh"></i>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="text-white me-3">
+                        <i class="fas fa-user-circle"></i> 
+                        <?= htmlspecialchars($usuario['Nombre']) ?>
+                    </span>
+                    
+                    <!-- Nuevo botón Dashboard -->
+                    <a href="dashboard.php" class="btn btn-light btn-sm me-2">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    
+                    <button onclick="location.reload()" class="btn btn-outline-light btn-sm me-2">
+                        <i class="fas fa-sync-alt"></i> Actualizar
                     </button>
-                    <a href="../logout.php" class="btn btn-warning btn-sm">
-                        <i class="fas fa-sign-out-alt"></i>
+                    
+                    <a href="../logout.php" class="btn btn-light btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- SECCIONES COCINA -->
+    <div class="container-fluid py-4 px-4">
+        <h1 class="main-title mb-1 text-center display-6">
+            <i class="fas fa-utensils me-3"></i>Órdenes en Cocina
+        </h1>
+        <p class="text-center text-muted mb-4 fs-5">
+            <?= $nuevas + $proceso + $listas ?> órdenes activas • <?= date('H:i') ?>
+        </p>
+
         <div class="row g-4">
-            <!-- EN ESPERA -->
+            <!-- En Espera -->
             <div class="col-xl-2 col-lg-3 col-md-6">
-                <div class="seccion-cocina seccion-ingreso h-100" data-estado="ingreso" onclick="setSeccionActiva(this)">
-                    <div class="header-seccion">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-clock me-2" style="color: var(--dusty-taupe);"></i>
-                                En Espera
-                            </h5>
-                            <div class="badge fs-6"><?= $nuevas ?></div>
-                        </div>
+                <div class="seccion-cocina seccion-ingreso" data-estado="ingreso">
+                    <div class="header-seccion text-center">
+                        <h5><i class="fas fa-clock"></i> En Espera</h5>
+                        <span class="badge fs-5 px-3"><?= $nuevas ?></span>
                     </div>
-                    <div id="drop-ingreso" class="drop-zone" tabindex="-1">
+                    <div class="drop-zone" id="drop-ingreso">
                         <?php foreach ($ordenesPorEstado['ingreso'] as $orden): ?>
                             <?= renderOrdenCard($orden) ?>
                         <?php endforeach; ?>
@@ -311,19 +229,14 @@ $canceladas = count($ordenesPorEstado['cancelado']);
                 </div>
             </div>
 
-            <!-- EN PREPARACIÓN -->
+            <!-- Preparación -->
             <div class="col-xl-2 col-lg-3 col-md-6">
-                <div class="seccion-cocina seccion-elaboracion h-100" data-estado="elaboracion" onclick="setSeccionActiva(this)">
-                    <div class="header-seccion">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-hammer me-2" style="color: var(--stone-brown);"></i>
-                                Preparación
-                            </h5>
-                            <div class="badge fs-6"><?= $proceso ?></div>
-                        </div>
+                <div class="seccion-cocina seccion-elaboracion" data-estado="elaboracion">
+                    <div class="header-seccion text-center">
+                        <h5><i class="fas fa-fire-flame-curved"></i> Preparación</h5>
+                        <span class="badge fs-5 px-3"><?= $proceso ?></span>
                     </div>
-                    <div id="drop-elaboracion" class="drop-zone" tabindex="-1">
+                    <div class="drop-zone" id="drop-elaboracion">
                         <?php foreach ($ordenesPorEstado['elaboracion'] as $orden): ?>
                             <?= renderOrdenCard($orden) ?>
                         <?php endforeach; ?>
@@ -331,19 +244,14 @@ $canceladas = count($ordenesPorEstado['cancelado']);
                 </div>
             </div>
 
-            <!-- LISTAS -->
+            <!-- Listas -->
             <div class="col-xl-2 col-lg-3 col-md-6">
-                <div class="seccion-cocina seccion-terminado h-100" data-estado="terminado" onclick="setSeccionActiva(this)">
-                    <div class="header-seccion">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-check-circle me-2" style="color: var(--text-light);"></i>
-                                Listas
-                            </h5>
-                            <div class="badge fs-6"><?= $listas ?></div>
-                        </div>
+                <div class="seccion-cocina seccion-terminado" data-estado="terminado">
+                    <div class="header-seccion text-center">
+                        <h5><i class="fas fa-check-circle"></i> Listas</h5>
+                        <span class="badge fs-5 px-3"><?= $listas ?></span>
                     </div>
-                    <div id="drop-terminado" class="drop-zone" tabindex="-1">
+                    <div class="drop-zone" id="drop-terminado">
                         <?php foreach ($ordenesPorEstado['terminado'] as $orden): ?>
                             <?= renderOrdenCard($orden) ?>
                         <?php endforeach; ?>
@@ -351,19 +259,14 @@ $canceladas = count($ordenesPorEstado['cancelado']);
                 </div>
             </div>
 
-            <!-- ENTREGADAS -->
+            <!-- Entregadas -->
             <div class="col-xl-2 col-lg-3 col-md-6">
-                <div class="seccion-cocina seccion-entregado h-100" data-estado="entregado" onclick="setSeccionActiva(this)">
-                    <div class="header-seccion">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-truck me-2" style="color: var(--dusty-taupe);"></i>
-                                Entregadas
-                            </h5>
-                            <div class="badge fs-6"><?= $entregadas ?></div>
-                        </div>
+                <div class="seccion-cocina seccion-entregado" data-estado="entregado">
+                    <div class="header-seccion text-center">
+                        <h5><i class="fas fa-truck"></i> Entregadas</h5>
+                        <span class="badge fs-5 px-3"><?= $entregadas ?></span>
                     </div>
-                    <div id="drop-entregado" class="drop-zone" tabindex="-1">
+                    <div class="drop-zone" id="drop-entregado">
                         <?php foreach ($ordenesPorEstado['entregado'] as $orden): ?>
                             <?= renderOrdenCard($orden) ?>
                         <?php endforeach; ?>
@@ -371,19 +274,14 @@ $canceladas = count($ordenesPorEstado['cancelado']);
                 </div>
             </div>
 
-            <!-- CANCELADAS -->
+            <!-- Canceladas -->
             <div class="col-xl-2 col-lg-3 col-md-6">
-                <div class="seccion-cocina seccion-cancelado h-100" data-estado="cancelado" onclick="setSeccionActiva(this)">
-                    <div class="header-seccion">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-times-circle me-2" style="color: var(--logo-gray);"></i>
-                                Canceladas
-                            </h5>
-                            <div class="badge fs-6"><?= $canceladas ?></div>
-                        </div>
+                <div class="seccion-cocina seccion-cancelado" data-estado="cancelado">
+                    <div class="header-seccion text-center" style="background: linear-gradient(135deg, #B8B0A8, #9E9589);">
+                        <h5><i class="fas fa-times-circle"></i> Canceladas</h5>
+                        <span class="badge fs-5 px-3"><?= $canceladas ?></span>
                     </div>
-                    <div id="drop-cancelado" class="drop-zone" tabindex="-1">
+                    <div class="drop-zone" id="drop-cancelado">
                         <?php foreach ($ordenesPorEstado['cancelado'] as $orden): ?>
                             <?= renderOrdenCard($orden) ?>
                         <?php endforeach; ?>
@@ -396,140 +294,30 @@ $canceladas = count($ordenesPorEstado['cancelado']);
     <?php 
     function renderOrdenCard($orden) {
         $productos = json_decode($orden['Productos'], true) ?: [];
-        $estadoClass = $orden['estado'];
     ?>
-    <div class="orden-card estado-<?= $estadoClass ?>" 
-         data-id="<?= $orden['Id_Venta'] ?>" 
-         draggable="true"
-         tabindex="0"
-         role="button"
-         aria-label="Orden #<?= $orden['Id_Venta'] ?>">
-        <span class="badge estado-badge estado-<?= $estadoClass ?>">
-            <?= strtoupper(substr($orden['estado'], 0, 3)) ?>
-        </span>
-        <h6>#<?= $orden['Id_Venta'] ?></h6>
-        <div class="productos-list">
-            <?php foreach (array_slice($productos, 0, 2) as $p): ?>
-                <div class="producto-item">
-                    <i class="fas fa-circle" style="font-size: 0.5rem; color: var(--dusty-taupe);"></i>
-                    <?= $p['cantidad'] ?? 1 ?>x <?= htmlspecialchars(substr($p['nombre'], 0, 20)) ?>
-                </div>
+    <div class="orden-card" draggable="true" data-id="<?= $orden['Id_Venta'] ?>">
+        <span class="badge badge-estado">#<?= $orden['Id_Venta'] ?></span>
+        
+        <h6 class="fw-bold mb-2 mt-4">#<?= $orden['Id_Venta'] ?></h6>
+        
+        <div style="font-size:0.92rem; line-height:1.45; min-height:75px; color: #4a3f35;">
+            <?php foreach (array_slice($productos, 0, 3) as $p): ?>
+                <div class="mb-1">• <?= ($p['cantidad'] ?? 1) ?>× <?= htmlspecialchars($p['nombre']) ?></div>
             <?php endforeach; ?>
-            <?php if (count($productos) > 2): ?>
-                <div class="producto-item" style="color: var(--logo-gray);">+<?= count($productos)-2 ?> más</div>
-            <?php endif; ?>
         </div>
-        <div class="info-footer">
-            <span><?= date('H:i', strtotime($orden['Fecha'])) ?></span>
-            <strong>$<?= number_format($orden['Total'], 0) ?></strong>
+
+        <div class="info-footer d-flex justify-content-between align-items-center">
+            <small><?= date('H:i', strtotime($orden['Fecha'])) ?></small>
+            <strong style="color: var(--cafe-brown); font-size:1.05rem;">
+                $<?= number_format($orden['Total'], 0) ?>
+            </strong>
         </div>
     </div>
     <?php } ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    let seccionActiva = null;
-    const estados = ['ingreso', 'elaboracion', 'terminado', 'entregado', 'cancelado'];
-    let columnaActual = 0;
-
-    // ⭐ DRAG & DROP
-    document.querySelectorAll('.orden-card').forEach(card => {
-        card.addEventListener('dragstart', e => {
-            e.dataTransfer.setData('text/plain', card.dataset.id);
-            card.classList.add('dragging');
-        });
-        
-        card.addEventListener('dragend', e => {
-            card.classList.remove('dragging');
-        });
-    });
-
-    // ⭐ NAVEGACIÓN CON ENTER Y CLICK
-    document.querySelectorAll('.orden-card').forEach((card, index) => {
-        card.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const nuevoEstado = document.querySelector(`[data-estado="${estados[columnaActual]}"]`).dataset.estado;
-            cambiarEstado(this.dataset.id, nuevoEstado);
-        });
-
-        card.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                const nuevoEstado = document.querySelector(`[data-estado="${estados[columnaActual]}"]`).dataset.estado;
-                cambiarEstado(this.dataset.id, nuevoEstado);
-            }
-        });
-    });
-
-    // ⭐ NAVEGACIÓN ENTRE COLUMNAS
-    document.addEventListener('keydown', function(e) {
-        const secciones = document.querySelectorAll('.seccion-cocina');
-        
-        if (e.key === 'ArrowRight' && columnaActual < estados.length - 1) {
-            columnaActual++;
-            setSeccionActiva(secciones[columnaActual]);
-            e.preventDefault();
-        } else if (e.key === 'ArrowLeft' && columnaActual > 0) {
-            columnaActual--;
-            setSeccionActiva(secciones[columnaActual]);
-            e.preventDefault();
-        }
-    });
-
-    // Drop zones
-    document.querySelectorAll('.drop-zone').forEach((zone, index) => {
-        ['dragover', 'dragenter'].forEach(event => {
-            zone.addEventListener(event, e => {
-                e.preventDefault();
-                e.currentTarget.closest('.seccion-cocina').classList.add('drag-over');
-            });
-        });
-        
-        ['dragleave', 'dragexit'].forEach(event => {
-            zone.addEventListener(event, e => {
-                e.currentTarget.closest('.seccion-cocina').classList.remove('drag-over');
-            });
-        });
-        
-        zone.addEventListener('drop', e => {
-            e.preventDefault();
-            const ordenId = e.dataTransfer.getData('text/plain');
-            const nuevoEstado = e.currentTarget.closest('.seccion-cocina').dataset.estado;
-            
-            cambiarEstado(ordenId, nuevoEstado);
-            e.currentTarget.closest('.seccion-cocina').classList.remove('drag-over');
-        });
-
-        if (index === 0) {
-            setSeccionActiva(zone.closest('.seccion-cocina'));
-        }
-    });
-
-    function cambiarEstado(idVenta, nuevoEstado) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'cocina-update-simple.php';
-        form.style.display = 'none';
-        
-        form.innerHTML = `
-            <input type="hidden" name="id_venta" value="${idVenta}">
-            <input type="hidden" name="estado" value="${nuevoEstado}">
-        `;
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    function setSeccionActiva(seccion) {
-        document.querySelectorAll('.seccion-cocina').forEach(s => {
-            s.style.boxShadow = '0 10px 30px var(--shadow-medium)';
-        });
-        seccion.style.boxShadow = '0 15px 50px rgba(169, 146, 125, 0.4)';
-        seccionActiva = seccion.dataset.estado;
-        columnaActual = estados.indexOf(seccion.dataset.estado);
-    }
-
-    setTimeout(() => location.reload(), 30000);
+        setTimeout(() => location.reload(), 30000);
     </script>
 </body>
 </html>

@@ -23,7 +23,7 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     }
 }
 
-// ⭐ LÓGICA CHEF (sin cambios)
+// ⭐ LÓGICA CHEF
 if ($rol == 'Chef') {
     $estados = ['ingreso', 'elaboracion', 'terminado'];
     $ordenesPorEstado = [];
@@ -61,87 +61,96 @@ if ($rol == 'Chef') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - <?= htmlspecialchars($usuario['Nombre']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
     :root {
-        --jet-black: #1a1a1a;
-        --black: #2d2d2d;
-        --white-smoke: #f5f5f5;
-        --dusty-taupe: #8b7d6b;
-        --stone-brown: #a68a64;
-        --text-primary: #2c3e50;
-        --text-secondary: #7f8c8d;
-        --shadow-heavy: rgba(0,0,0,0.3);
-        --shadow-medium: rgba(0,0,0,0.2);
+        --cafe-dark: #3C2F2A;
+        --cafe-brown: #6B5A4A;
+        --cafe-taupe: #A9927D;
+        --cream: #F8F4ED;
+        --beige-light: #FAF7F2;
+        --beige-lighter: #FFFBF5;
+        --text-dark: #3C2F2A;
+        --shadow-soft: rgba(107, 90, 74, 0.1);
     }
+
+    body {
+        background: linear-gradient(to bottom, #FFFBF5, #F8F4ED);
+        color: var(--text-dark);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* HEADER - Estilo claro y elegante */
+    .operativo-header {
+        background: linear-gradient(135deg, var(--cafe-dark), #4A3A32) !important;
+        box-shadow: 0 8px 25px var(--shadow-soft) !important;
+        padding: 1rem 0 !important;
+    }
+    
+    .operativo-logo {
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        color: white !important;
+        text-decoration: none;
+        font-weight: 800 !important;
+        font-size: 1.55rem !important;
+    }
+
+    .status-badge {
+        background: rgba(255,255,255,0.15) !important;
+        color: white !important;
+        padding: 0.7rem 1.6rem !important;
+        border-radius: 30px !important;
+        backdrop-filter: blur(10px);
+    }
+
     .dashboard-card {
         text-decoration: none;
         color: inherit;
         transition: all 0.3s ease;
         text-align: center;
         padding: 2.5rem 2rem;
-        border-radius: 20px;
+        border-radius: 22px;
         background: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px var(--shadow-soft);
+        border: 1px solid #f0e9df;
     }
+    
     .dashboard-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 25px 70px var(--shadow-heavy);
+        transform: translateY(-10px);
+        box-shadow: 0 20px 45px rgba(169, 146, 125, 0.2);
     }
-    .card { transition: all 0.3s ease; }
-    .card:hover { transform: translateY(-5px); }
-    .badge { font-weight: 600; }
 
-    /* ⭐ HEADER COMÚN PARA CAJERO Y CHEF */
-    .operativo-header {
-        background: linear-gradient(135deg, var(--dusty-taupe), var(--stone-brown)) !important;
-        box-shadow: 0 12px 40px var(--shadow-heavy) !important;
-        padding: 1rem 0 !important;
+    /* Tarjetas del Dashboard */
+    .card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px var(--shadow-soft);
+        transition: all 0.3s ease;
     }
-    .operativo-logo {
-        display: flex !important;
-        align-items: center !important;
-        gap: 1rem !important;
-        background: rgba(255,255,255,0.15) !important;
-        padding: 1rem 1.5rem !important;
-        border-radius: 15px !important;
-        backdrop-filter: blur(10px) !important;
-        font-weight: 800 !important;
-        font-size: 1.6rem !important;
-    }
-    .status-badge {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        background: rgba(255,255,255,0.2) !important;
-        padding: 0.8rem 1.8rem !important;
-        border-radius: 25px !important;
-        color: var(--white-smoke) !important;
-        font-weight: 700 !important;
-        backdrop-filter: blur(10px) !important;
-        animation: pulse-glow 2s infinite;
-    }
-    @keyframes pulse-glow {
-        0%, 100% { box-shadow: 0 4px 20px rgba(255,255,255,0.3); }
-        50% { box-shadow: 0 4px 30px rgba(255,255,255,0.6); }
+    
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(107, 90, 74, 0.15);
     }
     </style>
 </head>
 <body>
 
     <?php if (in_array($rol, ['Cajero', 'Chef'])): ?>
-    <!-- ⭐ HEADER COMÚN PARA CAJERO Y CHEF -->
+    <!-- HEADER OPERATIVO -->
     <header class="operativo-header">
         <div class="nav-container" style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <a href="dashboard.php" class="operativo-logo">
-                <img src="../assets/images/logo.png" alt="Bistro Coffee" style="width: 60px; height: 60px;">
+                <img src="../assets/images/logo.png" alt="Bistro Coffee" style="width: 60px; height: 60px; border-radius: 50%;">
                 <span>
                     <?php if ($rol == 'Cajero'): ?>
-                        Bistro <span style="color: #0b0b08;">Caja</span>
+                        Bistro <span style="color: #E8D5B8;">Caja</span>
                     <?php else: ?>
-                        Bistro <span style="color: #0b0b08;">Cocina</span>
+                        Bistro <span style="color: #E8D5B8;">Cocina</span>
                     <?php endif; ?>
                 </span>
             </a>
@@ -149,24 +158,21 @@ if ($rol == 'Chef') {
             <div style="text-align: center; flex: 1; max-width: 400px;">
                 <div class="status-badge">
                     <?php if ($rol == 'Cajero'): ?>
-                        <i class="fas fa-circle-dot" style="color: #00ff88;"></i>
+                        <i class="fas fa-circle-dot" style="color: #A9927D;"></i>
                         CAJERO ACTIVO
-                        <i class="fas fa-cash-register"></i>
                     <?php else: ?>
-                        <i class="fas fa-circle-dot" style="color: #00ff88;"></i>
+                        <i class="fas fa-circle-dot" style="color: #A9927D;"></i>
                         CHEF ACTIVO
-                        <i class="fas fa-fire"></i>
                     <?php endif; ?>
                 </div>
-                <div style="color: var(--white-smoke); font-weight: 600; margin-top: 0.5rem; font-size: 1.1rem;">
+                <div style="color: #E8D5B8; font-weight: 600; margin-top: 0.4rem;">
                     <?= htmlspecialchars($usuario['Nombre']) ?>
                 </div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <?php if ($rol == 'Cajero'): ?>
-                    <!-- BOTONES ESPECÍFICOS CAJERO -->
-                    <a href="carrito.php" class="btn btn-light position-relative" title="Pedidos Online">
+                    <a href="carrito.php" class="btn btn-light position-relative">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if ($total_carrito > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -178,21 +184,11 @@ if ($rol == 'Chef') {
                         <i class="fas fa-plus-circle"></i> Nueva Venta
                     </a>
                 <?php else: ?>
-                    <!-- BOTONES ESPECÍFICOS CHEF -->
-                    <a href="cocina.php#ingreso" class="btn btn-light position-relative" title="Nuevas Órdenes">
-                        <i class="fas fa-utensils"></i>
-                        <?php if (count($nuevas) > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
-                            <?= count($nuevas) > 99 ? '99+' : count($nuevas) ?>
-                        </span>
-                        <?php endif; ?>
-                    </a>
                     <a href="cocina.php" class="btn btn-light">
-                        <i class="fas fa-fire"></i> Cocina
+                        <i class="fas fa-utensils"></i> Cocina
                     </a>
                 <?php endif; ?>
                 
-                <!-- BOTÓN COMÚN: SALIR -->
                 <a href="logout.php" class="btn btn-light">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
@@ -201,170 +197,150 @@ if ($rol == 'Chef') {
     </header>
 
     <?php else: ?>
-    <!-- Header Original para otros roles -->
-    <header style="background: linear-gradient(135deg, var(--jet-black), var(--black));">
-        <div class="nav-container">
-            <a href="../index.php" class="logo">Bistro & Coffee</a>
-            <div style="display: flex; align-items: center; gap: 2rem;">
-                <span style="color: var(--white-smoke); font-weight: 500;">
-                    <?= htmlspecialchars($usuario['Nombre']) ?>
-                    <span style="color: var(--dusty-taupe); font-size: 0.9rem;">(<?= $rol ?>)</span>
+    <!-- Header para otros roles -->
+    <header style="background: linear-gradient(135deg, var(--cafe-dark), #5A473C); padding: 1.2rem 0;">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.php" class="text-white text-decoration-none fs-4 fw-bold">Bistro & Coffee</a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white">
+                    <?= htmlspecialchars($usuario['Nombre']) ?> 
+                    <small>(<?= $rol ?>)</small>
                 </span>
-                <a href="logout.php" class="btn" style="background: var(--stone-brown); padding: 0.7rem 1.5rem; font-size: 0.9rem;">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </a>
+                <a href="logout.php" class="btn btn-light">Salir</a>
             </div>
         </div>
     </header>
     <?php endif; ?>
 
-    <section class="dashboard" style="padding: <?= in_array($rol, ['Cajero', 'Chef']) ? '3rem 2rem' : '4rem 2rem' ?>;">
+    <section class="dashboard py-5">
         <div class="container">
-            <!-- Header Dashboard -->
-            <div class="dashboard-header text-center mb-5">
-                <h1 style="color: var(--text-primary); font-size: 3rem; margin-bottom: 1rem;">
-                    <i class="fas fa-tachometer-alt"></i> Bienvenido, <?= htmlspecialchars($usuario['Nombre']) ?>
+            <div class="text-center mb-5">
+                <h1 style="color: var(--cafe-brown); font-weight: 700;">
+                    <i class="fas fa-tachometer-alt me-3"></i> 
+                    Bienvenido, <?= htmlspecialchars($usuario['Nombre']) ?>
                 </h1>
-                <div class="rol-badge" style="display: inline-block; background: var(--dusty-taupe); color: var(--white-smoke); padding: 0.8rem 2rem; border-radius: 50px; font-weight: 600; font-size: 1.1rem;">
+                <div class="d-inline-block px-4 py-2 rounded-pill" 
+                     style="background: var(--cafe-taupe); color: white; font-weight: 600;">
                     <?= $rol ?>
                 </div>
             </div>
 
             <?php if ($rol == 'Administrador'): ?>
-                <!-- DASHBOARD ADMIN (sin cambios) -->
-                <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                    <a href="../admin/" class="dashboard-card card">
-                        <i class="fas fa-cogs" style="font-size: 3rem; color: var(--dusty-taupe); margin-bottom: 1.5rem;"></i>
-                        <h3>Panel Administrativo</h3>
-                        <p>Gestión completa del sistema</p>
+                <div class="row g-4">
+                    <a href="../admin/" class="col-md-4 dashboard-card">
+                        <i class="fas fa-cogs fa-3x mb-3" style="color: var(--cafe-taupe);"></i>
+                        <h4>Panel Administrativo</h4>
+                        <p class="text-muted">Gestión completa del sistema</p>
                     </a>
-                    <a href="reservas.php" class="dashboard-card card">
-                        <i class="fas fa-calendar-check" style="font-size: 3rem; color: var(--dusty-taupe); margin-bottom: 1.5rem;"></i>
-                        <h3>Reservas</h3>
-                        <p>Ver y gestionar reservas</p>
+                    <a href="reservas.php" class="col-md-4 dashboard-card">
+                        <i class="fas fa-calendar-check fa-3x mb-3" style="color: var(--cafe-taupe);"></i>
+                        <h4>Reservas</h4>
+                        <p class="text-muted">Ver y gestionar reservas</p>
                     </a>
-                    <a href="#" class="dashboard-card card">
-                        <i class="fas fa-chart-bar" style="font-size: 3rem; color: var(--dusty-taupe); margin-bottom: 1.5rem;"></i>
-                        <h3>Reportes</h3>
-                        <p>Estadísticas y ventas</p>
+                    <a href="#" class="col-md-4 dashboard-card">
+                        <i class="fas fa-chart-bar fa-3x mb-3" style="color: var(--cafe-taupe);"></i>
+                        <h4>Reportes</h4>
+                        <p class="text-muted">Estadísticas y ventas</p>
                     </a>
                 </div>
 
             <?php elseif ($rol == 'Cajero'): ?>
-                <!-- DASHBOARD CAJERO -->
                 <div class="row g-4">
-                    <!-- CAJA RÁPIDA -->
                     <div class="col-6 col-md-3">
-                        <a href="caja.php" class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                           style="border-radius: 20px; background: linear-gradient(135deg, #FFE0B2, #FFCC80);">
+                        <a href="caja.php" class="card h-100 text-decoration-none" 
+                           style="background: linear-gradient(135deg, #FFF4E6, #FFE8C8);">
                             <div class="p-4 text-center">
-                                <i class="fas fa-cash-register fa-3x mb-2 text-warning"></i>
-                                <h3 class="mb-1 fw-bold text-dark">Caja Rápida</h3>
-                                <p class="mb-2 text-muted fw-semibold">Registrar Venta</p>
-                                <div class="badge bg-warning w-100 py-2">EMPEZAR</div>
+                                <i class="fas fa-cash-register fa-3x mb-3" style="color: #D98C3D;"></i>
+                                <h4 class="fw-bold text-dark">Caja Rápida</h4>
+                                <p class="text-muted">Registrar Venta</p>
+                                <span class="badge bg-warning px-4 py-2">EMPEZAR</span>
                             </div>
                         </a>
                     </div>
 
-                    <!-- PEDIDOS ONLINE -->
                     <div class="col-6 col-md-3">
-                        <a href="carrito.php" class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                           style="border-radius: 20px; background: linear-gradient(135deg, #FFCDD2, #FF8A80);">
+                        <a href="carrito.php" class="card h-100 text-decoration-none" 
+                           style="background: linear-gradient(135deg, #FCE4E4, #F8C8C8);">
                             <div class="p-4 text-center">
-                                <i class="fas fa-shopping-cart fa-3x mb-2 text-danger"></i>
-                                <h3 class="mb-1 fw-bold text-dark"><?= $total_carrito ?></h3>
-                                <p class="mb-2 text-danger fw-semibold">Pedidos Online</p>
-                                <div class="badge bg-danger w-100 py-2">Ver Pedidos</div>
+                                <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #E06C6C;"></i>
+                                <h4 class="fw-bold"><?= $total_carrito ?></h4>
+                                <p class="text-danger fw-semibold">Pedidos Online</p>
+                                <span class="badge bg-danger px-4 py-2">Ver Pedidos</span>
                             </div>
                         </a>
                     </div>
 
-                    <!-- ESTADÍSTICAS -->
                     <div class="col-6 col-md-3">
-                        <div class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                             style="border-radius: 20px; background: linear-gradient(135deg, #C8E6C9, #81C784); color: #1b5e20;">
+                        <div class="card h-100" style="background: linear-gradient(135deg, #E8F5E8, #C8E6C9); color: #1e4d2b;">
                             <div class="p-4 text-center">
-                                <i class="fas fa-chart-bar fa-3x mb-2"></i>
-                                <h3 class="mb-1 fw-bold">$12,450</h3>
-                                <p class="mb-2 fw-semibold">Ventas Hoy</p>
+                                <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                                <h4 class="fw-bold">$12,450</h4>
+                                <p class="fw-semibold">Ventas Hoy</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- TOTAL / ACCIÓN -->
                     <div class="col-6 col-md-3">
-                        <div class="card h-100 shadow-xl border-0 position-relative overflow-hidden"
-                             style="border-radius: 20px; background: linear-gradient(135deg, #B2EBF2, #4DD0E1);">
+                        <div class="card h-100" style="background: linear-gradient(135deg, #E6F3FA, #B8E0F0);">
                             <div class="p-4 text-center">
-                                <i class="fas fa-fire fa-3x mb-2 text-info"></i>
-                                <h2 class="mb-1 fw-bold">Activo</h2>
-                                <p class="mb-3 fw-semibold text-info">Turno en Curso</p>
-                                <a href="caja.php" class="btn btn-light w-100 py-2 fw-bold">
-                                    <i class="fas fa-arrow-right me-2"></i>Ir a Caja
-                                </a>
+                                <i class="fas fa-fire fa-3x mb-3 text-info"></i>
+                                <h4 class="fw-bold">Activo</h4>
+                                <p class="text-info fw-semibold">Turno en Curso</p>
+                                <a href="caja.php" class="btn btn-light w-100 mt-2">Ir a Caja</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
             <?php elseif ($rol == 'Chef'): ?>
-                <!-- DASHBOARD CHEF -->
                 <div class="row g-4">
-                    <!-- CONTADORES COCINA -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md-3">
-                            <a href="cocina.php#ingreso" class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                               style="border-radius: 20px; background: linear-gradient(135deg, #FFF3CD, #FFEAA7);">
-                                <div class="p-4 text-center">
-                                    <i class="fas fa-clock fa-3x mb-2 text-warning"></i>
-                                    <h3 class="mb-1 fw-bold text-dark"><?= count($nuevas) ?></h3>
-                                    <p class="mb-2 text-muted fw-semibold">En Espera</p>
-                                    <div class="badge bg-warning w-100 py-2">Ver todas</div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <a href="cocina.php#elaboracion" class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                               style="border-radius: 20px; background: linear-gradient(135deg, #E1F5FE, #B3E5FC);">
-                                <div class="p-4 text-center">
-                                    <i class="fas fa-spinner fa-spin fa-3x mb-2 text-info"></i>
-                                    <h3 class="mb-1 fw-bold text-dark"><?= count($proceso) ?></h3>
-                                    <p class="mb-2 text-muted fw-semibold">En Proceso</p>
-                                    <div class="badge bg-info w-100 py-2">Gestionar</div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <a href="cocina.php#terminado" class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                               style="border-radius: 20px; background: linear-gradient(135deg, #E8F5E8, #C8E6C9);">
-                                <div class="p-4 text-center">
-                                    <i class="fas fa-check-circle fa-3x mb-2 text-success"></i>
-                                    <h3 class="mb-1 fw-bold text-dark"><?= count($listas) ?></h3>
-                                    <p class="mb-2 text-muted fw-semibold">Listas</p>
-                                    <div class="badge bg-success w-100 py-2">Entregar</div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="card h-100 shadow-lg border-0 text-decoration-none position-relative overflow-hidden"
-                                 style="border-radius: 20px; background: linear-gradient(135deg, #F3E5F5, #E1BEE7);">
-                                <div class="p-4 text-center">
-                                    <i class="fas fa-fire fa-3x mb-2 text-danger"></i>
-                                    <h3 class="mb-1 fw-bold text-dark"><?= count($ordenes) ?></h3>
-                                    <p class="mb-2 text-muted fw-semibold">Total Hoy</p>
-                                </div>
+                    <div class="col-6 col-md-3">
+                        <a href="cocina.php#ingreso" class="card h-100 text-decoration-none" 
+                           style="background: linear-gradient(135deg, #FFF8E1, #FFEEB8);">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-clock fa-3x mb-3" style="color: #D9A23B;"></i>
+                                <h3 class="fw-bold"><?= count($nuevas) ?></h3>
+                                <p class="text-muted">En Espera</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="cocina.php#elaboracion" class="card h-100 text-decoration-none" 
+                           style="background: linear-gradient(135deg, #E6F0FA, #B8D4F0);">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-spinner fa-spin fa-3x mb-3" style="color: #4A8CC7;"></i>
+                                <h3 class="fw-bold"><?= count($proceso) ?></h3>
+                                <p class="text-muted">En Proceso</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="cocina.php#terminado" class="card h-100 text-decoration-none" 
+                           style="background: linear-gradient(135deg, #E8F5E8, #C8E6C9);">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-check-circle fa-3x mb-3" style="color: #4A9C5E;"></i>
+                                <h3 class="fw-bold"><?= count($listas) ?></h3>
+                                <p class="text-muted">Listas</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100" style="background: linear-gradient(135deg, #F0EDE8, #E0D9C8);">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-fire fa-3x mb-3" style="color: var(--cafe-brown);"></i>
+                                <h3 class="fw-bold"><?= count($ordenes) ?></h3>
+                                <p class="text-muted">Total Hoy</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
             <?php else: ?>
-                <!-- CLIENTE -->
-                <div class="text-center py-5" style="color: var(--text-secondary);">
-                    <i class="fas fa-user-circle fa-5x mb-4 opacity-50"></i>
+                <div class="text-center py-5">
+                    <i class="fas fa-user-circle fa-5x mb-4" style="color: var(--cafe-taupe); opacity: 0.6;"></i>
                     <h2>Bienvenido Cliente</h2>
-                    <p class="lead">Tu perfil está en desarrollo</p>
-                    <a href="../index.php" class="btn btn-outline-primary btn-lg">
+                    <p class="lead text-muted">Tu perfil está en desarrollo</p>
+                    <a href="../index.php" class="btn btn-outline-primary btn-lg mt-3">
                         <i class="fas fa-home me-2"></i>Ir al Menú
                     </a>
                 </div>
@@ -373,6 +349,6 @@ if ($rol == 'Chef') {
     </section>
 
     <?php include '../includes/footer.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
