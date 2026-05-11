@@ -66,10 +66,10 @@ try {
         </div>
         <?php endif; ?>
 
-        <!-- 🔥 FILTRO GANANCIAS NUEVO -->
+        <!--FILTRO GANANCIAS-->
         <div class="row mb-4 g-3">
             <div class="col-md-3">
-                <label class="form-label fw-bold small">📅 Filtrar Ganancias:</label>
+                <label class="form-label fw-bold small">Filtrar Ganancias:</label>
                 <select id="filtroPeriodo" class="form-select form-select-sm">
                     <option value="hoy">Hoy</option>
                     <option value="semana">Esta Semana</option>
@@ -93,7 +93,7 @@ try {
             </div>
         </div>
 
-        <!-- 🔥 CARD GANANCIAS DINÁMICA -->
+        <!-- CARD GANANCIAS DINÁMICA -->
         <div class="row mb-5">
             <div class="col-12">
                 <div id="cardGanancias" class="card shadow-lg border-0 card-ganancias">
@@ -189,7 +189,7 @@ try {
         </div>
     </main>
 
-    <!-- 🔥 JAVASCRIPT al FINAL -->
+    <!-- JAVASCRIPT al FINAL -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     let timeout;

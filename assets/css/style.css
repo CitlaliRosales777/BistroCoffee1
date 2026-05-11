@@ -45,34 +45,34 @@ body {
 /* Header */
 header {
     background: var(--logo-gray) !important;
-    box-shadow: 0 8px 32px var(--shadow-heavy);
+    box-shadow: 0 12px 40px var(--shadow-heavy);
     position: sticky;
     top: 0;
     z-index: 1000;
+    /* BARRA MÁS ALTA */
+    padding: 1rem 0; /* Padding vertical aumentado */
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 1400px; /* Más ancho */
     margin: 0 auto;
-    padding: 1.2rem 2rem;
+    padding: 1.5rem 3rem; /* Padding más grande */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 90px; /* ALTURA FIJA MÁS GRANDE */
+    min-height: 90px;
 }
 
 /* Logo como imagen */
-.logo {
-    display: block;
-    max-height: 55px;           /* Ajusta según el tamaño que quieras */
-    width: auto;
-    transition: all 0.3s ease;
-}
-
 .logo-img {
-    height: 100px;               /* La imagen ocupa toda la altura del contenedor */
-    width: auto;
-    max-width: 100px;           /* Evita que sea demasiado ancho */
-    object-fit: contain;        /* Mantiene las proporciones */
+    width: 80px;        /* Tamaño óptimo */
+    height: 80px;       /* Círculo perfecto */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
 }
 
 .logo,
@@ -81,9 +81,9 @@ header {
 }
 
 /* Efecto hover opcional */
-.logo:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+.logo-img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
 /* Si quieres que el logo sea más grande en escritorio */
@@ -96,22 +96,33 @@ header {
 nav ul {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 2.5rem; /* Más espacio entre items */
+    align-items: center;
 }
 
 nav a {
-    color: var(--white-smoke);
+    color: var(--white-smoke) !important;
     text-decoration: none;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
+    font-weight: 600; /* Más grueso */
+    font-size: 1.1rem; /* LETRA MÁS GRANDE */
+    padding: 0.75rem 1.5rem; /* Padding más grande */
+    border-radius: 30px;
     transition: all 0.3s ease;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espacio icono-texto */
+    white-space: nowrap; /* Evita saltos de línea */
+}
+/*icono mas grande*/
+nav a i {
+    font-size: 1.2rem;
 }
 
 nav a:hover {
-    background: rgba(169, 146, 125, 0.2);
-    transform: translateY(-2px);
+    background: rgba(169, 146, 125, 0.25);
+    transform: translateY(-3px);
+    color: var(--white-smoke) !important;
 }
 
 /* Hero */
@@ -582,6 +593,8 @@ input::placeholder, textarea::placeholder {
     padding: 0.5rem 1rem !important;
     border-radius: 25px !important;
     transition: all 0.3s ease !important;
+    font-size: 1.1rem !important;
+    padding: 0.75rem 1.5rem !important;
 }
 
 .cart-link:hover {
@@ -657,4 +670,30 @@ input::placeholder, textarea::placeholder {
     height: 24px !important;
     font-size: 0.8rem !important;
     border-radius: 12px !important; /* Pill shape */
+}
+
+/* Logo redondo y más visible */
+.logo-img2 {
+    width: 125px;        /* Tamaño más grande */
+    height: 125px;       /* Igual altura para círculo perfecto */
+    border-radius: 50%; /* Hace el logo completamente redondo */
+    object-fit: cover;  /* Mantiene proporciones sin distorsión */
+    border: 3px solid #fff;  /* Borde blanco para destacar */
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3); /* Sombra para profundidad */
+    transition: all 0.3s ease; /* Animación suave */
+}
+
+/* Efecto hover para el logo */
+.logo-img:hover {
+    transform: scale(1.1); /* Aumenta ligeramente al pasar el mouse */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .logo-img2 {
+        width: 50px;
+        height: 50px;
+        border-width: 2px;
+    }
 }

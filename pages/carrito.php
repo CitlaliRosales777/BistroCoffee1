@@ -204,12 +204,6 @@ if (!empty($carrito)) {
                     
                     <div class="acciones" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
                         <?php if (!empty($carrito)): ?>
-                            <a href="#" class="btn" style="text-align: center; padding: 1.2rem;">
-                                <i class="fas fa-credit-card"></i> Pagar con Tarjeta
-                            </a>
-                            <a href="#" class="btn" style="background: var(--jet-black);">
-                                <i class="fas fa-money-bill-wave"></i> Efectivo al Recoger
-                            </a>
                             <a href="pedido-confirmacion.php" class="btn" style="background: var(--stone-brown);">
                                 <i class="fas fa-receipt"></i> Confirmar Pedido
                             </a>

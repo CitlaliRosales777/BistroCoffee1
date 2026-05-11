@@ -23,24 +23,24 @@ $productos = getProductos($conn, $busqueda);
     <?php include '../includes/header.php'; ?>
 
     <!-- HERO MENÚ -->
-    <section class="hero-menu" style="background: linear-gradient(135deg, var(--primary) 10%, var(--accent) 100%); color: white; padding: 1rem 1rem; text-align: center;">
-        <div class="container">
-            <h1 style="font-size: 4.5rem; margin-bottom: 1rem; color: var(--stone-brown);"><i class="fas fa-utensils"></i> Nuestro Menú</h1>
-            <p style="font-size: 1.5rem; max-width: 1000px; margin: 10 auto; color: var(--stone-brown);">Explora nuestras delicias recién preparadas</p>
-        </div>
-    </section>
+<section class="hero-menu" style="background: linear-gradient(135deg, var(--primary) 10%, var(--accent) 100%); color: white; padding: 0rem 0rem 0rem; text-align: center;">
+    <div class="container">
+        <h1 style="font-size: 4.5rem; margin-bottom: 1rem; color: var(--stone-brown);"><i class="fas fa-utensils"></i> Nuestro Menú</h1>
+        <p style="font-size: 1.5rem; max-width: 1000px; margin: 0 auto; color: var(--stone-brown);">Explora nuestras delicias recién preparadas</p>
+    </div>
+</section>
 
-    <!-- BUSCADOR -->
-    <section class="buscador-section" style="padding: 100px 200px; background: var(--logo-cream);">
-        <div class="container">
-            <form method="GET" style="max-width: 600px; margin: 0 auto;">
-                <div class="input-group" style="position: relative;">
-                    <input type="text" name="buscar" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Busca tu platillo favorito..." style="width: 100%; padding: 1.2rem 1rem 1.2rem 4rem; border: 3px solid #eee; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                    <i class="fas fa-search" style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem;"></i>
-                </div>
-            </form>
-        </div>
-    </section>
+<!-- BUSCADOR -->
+<section class="buscador-section" style="padding: 2rem 2rem; background: var(--logo-cream);">
+    <div class="container">
+        <form method="GET" style="max-width: 600px; margin: 0 auto;">
+            <div class="input-group" style="position: relative;">
+                <input type="text" name="buscar" value="<?= htmlspecialchars($busqueda) ?>" placeholder="Busca tu platillo favorito..." style="width: 100%; padding: 1.2rem 1rem 1.2rem 4rem; border: 3px solid #eee; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <i class="fas fa-search" style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem;"></i>
+            </div>
+        </form>
+    </div>
+</section>
 
     <!-- PRODUCTOS - SIEMPRE VISIBLE -->
     <section class="productos" style="padding: 4rem 2rem;">

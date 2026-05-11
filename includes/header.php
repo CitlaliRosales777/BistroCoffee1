@@ -19,10 +19,10 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
 }
 ?>
 <header>
-    <link rel="stylesheet" href="../assets/css/style.css?v=43">
+    <link rel="stylesheet" href="../assets/css/style.css?v=45">
     <nav class="nav-container">
         <a href="/" class="logo">
-            <img src="/assets/images/logo.png" alt="Bistro Coffee" class="logo-img">
+         <img src="/assets/images/logo.png" alt="Bistro Coffee Logo" class="logo-img">
         </a>
         <a href="../index.php" class="logo">Bistro & <span>Coffee</span></a>
         

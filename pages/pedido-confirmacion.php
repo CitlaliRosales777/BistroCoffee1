@@ -111,7 +111,7 @@ if ($_POST) {
         
         // REDIRIGIR A TICKET
         $datosTicketJson = json_encode($datosTicket);
-        header("Location: ticket.php?datos=" . urlencode($datosTicketJson));
+        header("Location: ticket-cliente.php?datos=" . urlencode($datosTicketJson));
         exit;
         
     } catch (Exception $e) {
@@ -243,7 +243,7 @@ if ($_POST) {
                                 <input type="number" name="propina" step="0.01" min="0" value="0" 
                                        style="flex: 1; padding: 0.8rem; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.9); text-align: right; color: var(--jet-black);" 
                                        onchange="calcularTotal()" onkeyup="calcularTotal()">
-                                <span style="font-weight: 600; color: rgba(255,255,255,0.9);">MXN</span>
+                                <span style="font-weight: 600; color: rgba(38, 21, 21, 0.9);">MXN</span>
                             </div>
                         </div>
 
@@ -254,9 +254,9 @@ if ($_POST) {
                                 Método de pago:
                             </label>
                             <select name="metodo_pago" style="width: 100%; padding: 0.8rem; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.9); color: var(--jet-black);" required>
-                                <option value="Efectivo">💵 Efectivo al recoger</option>
-                                <option value="Tarjeta">💳 Tarjeta de crédito/débito</option>
-                                <option value="Transferencia">💸 Transferencia</option>
+                                <option value="Efectivo">Efectivo al recoger</option>
+                                <option value="Tarjeta">Tarjeta de crédito/débito</option>
+                                <option value="Transferencia">Transferencia</option>
                             </select>
                         </div>
 
@@ -274,10 +274,11 @@ if ($_POST) {
                         </a>
                     <?php endif; ?>
 
-                    <div style="text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; color: rgba(255,255,255,0.8);">
+                    <div style="text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; color: rgba(42, 23, 23, 0.72);">
                         <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
                         Recibirás tu ticket automáticamente. ¡Gracias por tu compra!
                     </div>
+
                 </div>
             </div>
         </div>

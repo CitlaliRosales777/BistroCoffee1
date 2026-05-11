@@ -118,58 +118,290 @@ $productos = db_fetch_all($conn, "
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #F4A261; --success: #2A9D8F; --danger: #E76F51; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .caja-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
-        .producto-btn { height: 110px; border-radius: 15px; font-size: 13px; transition: all 0.3s; border: 2px solid #eee; }
-        .producto-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-color: var(--primary); }
-        .carrito-item { border-left: 4px solid var(--primary); }
-        .btn-accion-carrito { opacity: 0; transition: all 0.2s; }
-        .carrito-item:hover .btn-accion-carrito { opacity: 1; }
-        .buscador-input { border-radius: 25px; }
+        :root {
+            /* Colores base */
+            --black: #0a0908ff;
+            --jet-black: #22333bff;
+            --white-smoke: #f2f4f3ff;
+            --dusty-taupe: #a9927dff;
+            --stone-brown: #5e503fff;
+
+            /*pagina color*/
+            --logo-cream: #F0EBE3;
+            --logo-gray: #8C8C8C;
+
+            /* Colores semánticos para mejor mantenimiento */
+            --text-primary: var(--stone-brown);
+            --text-secondary: #4a4035;
+            --text-light: #8c7d6f;
+            --bg-card: var(--white-smoke);
+            --bg-section-light: #f8f7f5;
+            --shadow-light: rgba(94, 80, 63, 0.08);
+            --shadow-medium: rgba(94, 80, 63, 0.15);
+            --shadow-heavy: rgba(10, 9, 8, 0.25);
+
+            /* Status sin verde */
+            --status-disponible-bg: #e6f0e0;
+            --status-disponible-text: #2f4a2a;
+            --status-ocupado-bg: #f0e4e4;
+            --status-ocupado-text: #5c2a2a;
+
+            /* Colores semánticos personalizados */
+            --primary: var(--dusty-taupe);
+            --primary-dark: var(--stone-brown);
+            --success: var(--dusty-taupe);
+            --danger: #8b5a2b;
+            --warning: var(--dusty-taupe);
+            --info: #6b4e3d;
+            --light: var(--white-smoke);
+            --dark: var(--jet-black);
+        }
+
+        body { 
+            background: linear-gradient(135deg, var(--jet-black) 0%, var(--stone-brown) 100%); 
+            min-height: 100vh; 
+            color: var(--text-primary);
+        }
+
+        .caja-container { 
+            max-width: 1600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+
+        .producto-btn { 
+            height: 140px;  /* Más alto */
+            border-radius: 20px; 
+            font-size: 16px;  /* 🔤 LETRAS MÁS GRANDES */
+            font-weight: 600;
+            padding: 15px 10px;  /* Más padding interno */
+            transition: all 0.3s; 
+            border: 2px solid var(--bg-section-light); 
+            background: var(--bg-card);
+            color: var(--text-primary);
+            line-height: 1.3;  /* Mejor espaciado de líneas */
+        }
+
+        .producto-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px var(--shadow-heavy); 
+            border-color: var(--primary); 
+            background: var(--logo-cream);
+        }
+
+        .carrito-item { 
+            border-left: 4px solid var(--primary); 
+            background: var(--bg-card);
+        }
+
+        .btn-accion-carrito { 
+            opacity: 0; 
+            transition: all 0.2s; 
+        }
+
+        .carrito-item:hover .btn-accion-carrito { 
+            opacity: 1; 
+        }
+
+        .buscador-input { 
+            border-radius: 25px;
+            background: var(--bg-card);
+            border: 1px solid var(--bg-section-light);
+        }
         
         /* CONTROL COMPACTO DE CANTIDAD */
         .control-cantidad-compact {
             position: sticky;
             top: 20px;
             z-index: 10;
-            background: rgba(255,255,255,0.95);
+            background: rgba(242, 244, 243, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px var(--shadow-medium);
+            border: 1px solid var(--bg-section-light);
         }
+
         .input-cantidad-compact {
             width: 80px;
             height: 50px;
             font-size: 1.4rem;
             font-weight: 700;
-            border: 2px solid #dee2e6;
+            border: 2px solid var(--bg-section-light);
             border-radius: 10px;
             text-align: center;
+            background: var(--logo-cream);
+            color: var(--text-primary);
         }
+
         .input-cantidad-compact:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 0.2rem rgba(244,162,97,0.25);
+            box-shadow: 0 0 0 0.2rem rgba(169, 146, 125, 0.25);
         }
+
         .btn-cant-compact {
             width: 45px;
             height: 45px;
             border-radius: 10px;
             font-weight: 700;
             font-size: 0.9rem;
+            border: 1px solid var(--bg-section-light);
         }
         
         /* DIVISA EN TIEMPO REAL */
         .divisa-control {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--jet-black), var(--stone-brown));
             border-radius: 12px;
             padding: 8px 12px;
+            color: var(--white-smoke);
         }
+
         .total-live {
             transition: all 0.3s ease;
             font-size: 2.2rem;
             font-weight: 800;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-section-light);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .card-header {
+            background: var(--primary);
+            color: var(--white-smoke);
+            border-bottom: 1px solid var(--bg-section-light);
+        }
+
+        /* Header */
+        h1 {
+            color: var(--white-smoke);
+        }
+
+        .text-white {
+            color: var(--white-smoke) !important;
+        }
+
+        .text-white-50 {
+            color: rgba(242, 244, 243, 0.5) !important;
+        }
+
+        /* Botones */
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--dusty-taupe);
+            border-color: var(--dusty-taupe);
+        }
+
+        .btn-success:hover {
+            background-color: var(--stone-brown);
+            border-color: var(--stone-brown);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: var(--white-smoke);
+            border-color: var(--primary);
+        }
+
+        .btn-outline-light {
+            color: var(--white-smoke);
+            border-color: rgba(242, 244, 243, 0.3);
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--white-smoke);
+            color: var(--stone-brown);
+        }
+
+        .btn-outline-warning {
+            color: var(--dusty-taupe);
+            border-color: var(--dusty-taupe);
+        }
+
+        .btn-warning {
+            background-color: var(--dusty-taupe);
+            border-color: var(--dusty-taupe);
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            border-color: var(--info);
+            color: var(--white-smoke);
+        }
+
+        /* Alertas */
+        .alert-success {
+            background-color: var(--status-disponible-bg);
+            border-color: var(--status-disponible-text);
+            color: var(--status-disponible-text);
+        }
+
+        /* Badge */
+        .badge {
+            background-color: var(--bg-section-light);
+            color: var(--text-primary);
+        }
+
+        /* List group */
+        .list-group-item {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-section-light);
+            color: var(--text-primary);
+        }
+
+        /* Formularios */
+        .form-control, .form-select {
+            background: var(--logo-cream);
+            border: 1px solid var(--bg-section-light);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--white-smoke);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(169, 146, 125, 0.25);
+            color: var(--text-primary);
+        }
+
+        .input-group-text {
+            background: var(--bg-section-light);
+            border: 1px solid var(--bg-section-light);
+            color: var(--text-light);
+        }
+
+        /* Texto */
+        .text-muted {
+            color: var(--text-light) !important;
+        }
+
+        .text-success {
+            color: var(--dusty-taupe) !important;
+        }
+
+        /* Sombras */
+        .shadow, .shadow-lg, .shadow-xl {
+            box-shadow: var(--shadow-medium) !important;
+        }
+
+        .shadow-sm {
+            box-shadow: var(--shadow-light) !important;
         }
     </style>
 </head>
@@ -178,7 +410,7 @@ $productos = db_fetch_all($conn, "
         <!-- HEADER -->
         <div class="row align-items-center mb-4">
             <div class="col-md-6">
-                <h1 class="text-white mb-2">
+                <h1 class="mb-2">
                     <i class="fas fa-cash-register fa-2x me-3"></i>
                     Caja Registradora (<?= count($productos) ?> productos)
                 </h1>
@@ -191,16 +423,14 @@ $productos = db_fetch_all($conn, "
                 <?php if (isset($_SESSION['mensaje'])): ?>
                     <div class="alert alert-success alert-dismissible fade show rounded-pill shadow mb-3" role="alert">
                         <?= htmlspecialchars($_SESSION['mensaje']) ?>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.3);"></button>
                     </div>
                     <?php unset($_SESSION['mensaje']); ?>
                 <?php endif; ?>
                 <div class="mt-2">
-                    <a href="caja-debug.php" class="btn btn-outline-warning btn-sm me-2">
-                        <i class="fas fa-bug"></i> Debug
-                    </a>
-                    <a href="../admin/index.php" class="btn btn-outline-light btn-sm me-2">
-                        <i class="fas fa-home"></i> Admin
+                    
+                    <a href="../pages/dashboard.php" class="btn btn-outline-light btn-sm me-2">
+                        <i class="fas fa-home"></i> Panel Principal
                     </a>
                     <a href="../logout.php" class="btn btn-warning btn-sm">
                         <i class="fas fa-sign-out-alt"></i> Cerrar
@@ -236,7 +466,7 @@ $productos = db_fetch_all($conn, "
             <!-- PRODUCTOS -->
             <div class="col-lg-8">
                 <div class="card shadow-lg border-0 h-100">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
+                    <div class="card-header d-flex justify-content-between align-items-center p-3">
                         <h6 class="mb-0 fw-bold">
                             <i class="fas fa-utensils me-2"></i>
                             Productos (<?= count($productos) ?> disponibles)
@@ -255,11 +485,11 @@ $productos = db_fetch_all($conn, "
                         <!-- Buscador -->
                         <form id="formProductos" method="GET" class="p-3 border-bottom">
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
+                                <span class="input-group-text">
                                     <i class="fas fa-magnifying-glass text-muted"></i>
                                 </span>
-                                <input type="text" name="buscar" class="form-control border-start-0 fs-6 buscador-input py-2" 
-                                       placeholder="🔍 Buscar café, pancakes..." 
+                                <input type="text" name="buscar" class="form-control fs-6 buscador-input py-2" 
+                                       placeholder="Buscar café, pancakes..." 
                                        value="<?= htmlspecialchars($_GET['buscar'] ?? '') ?>">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i>
@@ -290,11 +520,11 @@ $productos = db_fetch_all($conn, "
                             <?php else: ?>
                                 <div class="row g-2 g-md-3">
                                     <?php foreach (array_slice(array_values($productosFiltrados), 0, 24) as $producto): ?>
-                                        <div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2">
+                                        <div class="col-12 col-sm-6 col-md-4 col-lg-4">
                                             <form method="POST" class="h-100">
                                                 <input type="hidden" name="producto_id" value="<?= $producto['id'] ?>">
                                                 <input type="hidden" name="cantidad" id="cant-<?= $producto['id'] ?>" value="1">
-                                                <button type="submit" name="agregar" class="btn btn-outline-primary w-100 h-100 p-2 rounded-3 shadow-sm producto-btn"
+                                                <button type="submit" name="agregar" class="btn w-100 h-100 p-2 rounded-3 shadow-sm producto-btn"
                                                         title="Cantidad actual: 1 | Cambia arriba 👆">
                                                     <div class="fw-bold mb-1 text-truncate d-block" style="font-size: 13px; line-height: 1.2;">
                                                         <?= htmlspecialchars($producto['nombre']) ?>
@@ -302,7 +532,7 @@ $productos = db_fetch_all($conn, "
                                                     <div class="text-success fw-bold fs-5" id="precio-<?= $producto['id'] ?>">
                                                         $<span class="precio-val"><?= number_format($producto['precio'], 0) ?></span>
                                                     </div>
-                                                    <small class="badge bg-light text-dark"><?= htmlspecialchars($producto['categoria']) ?></small>
+                                                    <small class="badge"><?= htmlspecialchars($producto['categoria']) ?></small>
                                                 </button>
                                             </form>
                                         </div>
@@ -317,7 +547,7 @@ $productos = db_fetch_all($conn, "
             <!-- CARRITO MEJORADO -->
             <div class="col-lg-4">
                 <div class="card shadow-xl border-0 h-100" style="border-radius: 20px;">
-                    <div class="card-header bg-success text-white rounded-top p-3 position-relative">
+                    <div class="card-header rounded-top p-3 position-relative">
                         <div class="d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-shopping-cart me-2"></i>Carrito (<?= count($_SESSION['carrito']) ?>)</span>
                             <?php if (!empty($_SESSION['carrito'])): ?>
@@ -334,7 +564,7 @@ $productos = db_fetch_all($conn, "
                         <div class="divisa-control mt-2 p-2">
                             <div class="row align-items-center g-2">
                                 <div class="col-auto">
-                                    <label class="mb-0 small fw-bold text-white">Divisa:</label>
+                                    <label class="mb-0 small fw-bold">Divisa:</label>
                                 </div>
                                 <div class="col-auto">
                                     <select id="monedaSelect" class="form-select form-select-sm">
@@ -362,7 +592,7 @@ $productos = db_fetch_all($conn, "
                                 <?php foreach($_SESSION['carrito'] as $i => $item): ?>
                                 <div class="list-group-item carrito-item px-3 py-2 mb-2 rounded shadow-sm">
                                     <div class="d-flex justify-content-between align-items-start mb-1">
-                                        <small class="text-muted fw-semibold"><?= htmlspecialchars($item['nombre']) ?></small>
+                                        <small class="fw-semibold"><?= htmlspecialchars($item['nombre']) ?></small>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('¿Quitar?')">
                                             <input type="hidden" name="index" value="<?= $i ?>">
                                             <button type="submit" name="quitar_item" class="btn btn-sm btn-outline-danger rounded-circle p-1 btn-accion-carrito">
@@ -371,7 +601,7 @@ $productos = db_fetch_all($conn, "
                                         </form>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span class="badge bg-primary fs-6 px-2"><?= $item['cantidad'] ?>x</span>
+                                        <span class="badge fs-6 px-2"><?= $item['cantidad'] ?>x</span>
                                         <span class="fw-bold small text-muted" id="item-subtotal-<?= $i ?>">
                                             $<span class="sub-val"><?= number_format($item['subtotal'], 2) ?></span>
                                         </span>
@@ -382,7 +612,7 @@ $productos = db_fetch_all($conn, "
                         </div>
                         
                         <!-- TOTALES LIVE -->
-                        <div class="p-4 border-top bg-light">
+                        <div class="p-4 border-top" style="background: var(--bg-section-light);">
                             <div class="divisa-control mb-3">
                                 <div class="row">
                                     <div class="col-6">
@@ -418,7 +648,7 @@ $productos = db_fetch_all($conn, "
                             <?php if (!empty($_SESSION['carrito'])): ?>
                             <!-- Reemplaza el botón IMPRIMIR existente en el carrito -->
 <div class="mt-2">
-    <button type="button" onclick="previewTicket()" class="btn btn-info w-100 py-2 fs-6 fw-bold rounded-3 shadow me-1">
+    <button type="button" onclick="previewTicket()" class="btn btn-info w-100 py-2 fs-6 fw-bold rounded-3 shadow me-1 mb-1">
         <i class="fas fa-eye me-2"></i> PREVIEW TICKET
     </button>
     <button type="button" onclick="imprimirTicket()" class="btn btn-warning w-100 py-2 fs-6 fw-bold rounded-3 shadow">
@@ -556,7 +786,7 @@ function actualizarTotales() {
     // Animación
     const totalEl = document.getElementById('totalLive');
     totalEl.style.transform = 'scale(1.05)';
-    totalEl.style.color = '#28a745';
+    totalEl.style.color = '#a9927d';
     setTimeout(() => {
         totalEl.style.transform = 'scale(1)';
         totalEl.style.color = '';

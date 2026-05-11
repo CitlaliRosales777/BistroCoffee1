@@ -11,7 +11,7 @@ if (strtotime($fecha) < strtotime($hoy) || strtotime($fecha) > strtotime($maxDia
     $fecha = $hoy;
 }
 
-$horasLaborables = ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+$horasLaborables = ['9:00am','10:00am','11:00am','12:00pm', '13:00pm', '14:00pm', '15:00pm', '16:00pm', '17:00pm', '18:00pm', '19:00pm', '20:00pm'];
 $disponibilidades = getDisponibilidades($conn, $fecha);
 
 $totalOcupadas = 0;
@@ -38,10 +38,10 @@ $totalDisponibles = count($horasLaborables) - $totalOcupadas;
     <?php include '../includes/header.php'; ?>
     
 
-    <section class="hero-reservas" style="background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); color: white; padding: 5rem 2rem; text-align: center;">
+    <section class="hero-reservas" style="background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); color: white;  text-align: center;">
         <div class="container">
             <h1 style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--stone-brown);"><i class="fas fa-calendar-check"></i> Reserva tu Mesa</h1>
-            <p style="font-size: 1.3rem; color: var(--stone-brown);">🕒 Máximo 1 mesa por horario • Real-time</p>
+            <p style="font-size: 1.3rem; color: var(--stone-brown);">Menejamos 1 mesa por Hora • Real-time</p>
         </div>
     </section>
 
@@ -54,17 +54,17 @@ $totalDisponibles = count($horasLaborables) - $totalOcupadas;
 
             <div class="estado-disponibilidad text-center mb-5">
                 <div style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--stone-brown);">
-                    📅 <?= date('d/m/Y', strtotime($fecha)) ?> 
-                    <?php if ($fecha == $hoy): ?><span style="font-size: 1rem; background: #ffeb3b; padding: 0.25rem 0.75rem; border-radius: 20px;">🎯 HOY</span><?php endif; ?>
+                    <?= date('d/m/Y', strtotime($fecha)) ?> 
+                    <?php if ($fecha == $hoy): ?><span style="font-size: 1rem; background: #cdc9a7; padding: 0.25rem 0.75rem; border-radius: 20px;">HOY</span><?php endif; ?>
                 </div>
                 <div style="font-size: 1.2rem; padding: 1rem 2rem; border-radius: 50px; display: inline-block;
                     <?= $totalDisponibles > 0 ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;' ?>">
-                    <?= $totalDisponibles > 0 ? '✅ ' . $totalDisponibles . '/' . count($horasLaborables) . ' disponibles' : '❌ Completó' ?>
+                    <?= $totalDisponibles > 0 ? '' . $totalDisponibles . '/' . count($horasLaborables) . ' disponibles' : 'Completó' ?>
                 </div>
             </div>
 
             <div class="grid-horarios" style="max-width: 800px; margin: 0 auto 3rem; padding: 2rem; background: white; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.1);">
-                <h3 style="text-align: center; margin-bottom: 2rem; color: var(--dark);">🕒 Horarios disponibles</h3>
+                <h3 style="text-align: center; margin-bottom: 2rem; color: var(--dark);">Horarios disponibles</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1.2rem; justify-items: center;">
                     <?php foreach($horasLaborables as $hora): 
                         $reservasEnHora = contarReservasPorHora($disponibilidades, $hora);
@@ -79,7 +79,7 @@ $totalDisponibles = count($horasLaborables) - $totalOcupadas;
                         <?= $disponible ? 'border: 3px solid #28a745; transform: scale(1.05);' : 'opacity: 0.7' ?>
                     " onclick="<?= $disponible ? "selectHora('$hora')" : '' ?>"
                     title="<?= $disponible ? 'Disponible' : 'Ocupado (' . $reservasEnHora . '/1)' ?>">
-                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;"><?= $disponible ? '✅' : '❌' ?></div>
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;"><?= $disponible ? '' : '' ?></div>
                         <div style="font-size: 1.3rem; font-weight: 700;"><?= $hora ?></div>
                         <div style="font-size: 0.85rem;">
                             <?= $disponible ? 'Libre' : 'Ocupada' ?><br>
@@ -119,7 +119,7 @@ $totalDisponibles = count($horasLaborables) - $totalOcupadas;
                         <h3 style="margin-bottom: 1rem;">Sin horarios disponibles</h3>
                         <p>Para <?= date('d/m/Y', strtotime($fecha)) ?></p>
                         <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" style="background: var(--primary); color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 10px;">
-                            📅 Probar mañana
+                            Probar mañana
                         </a>
                     </div>
                 <?php else: ?>
@@ -127,38 +127,38 @@ $totalDisponibles = count($horasLaborables) - $totalOcupadas;
                     <input type="hidden" name="fecha" value="<?= $fecha ?>">
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">👤 Nombre *</label>
+                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nombre *</label>
                             <input type="text" name="nombre" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 12px;">
                         </div>
-                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">📱 Teléfono *</label>
+                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Teléfono *</label>
                             <input type="tel" name="telefono" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 12px;">
                         </div>
                     </div>
-
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">✉️ Correo</label>
+                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Correo</label>
                             <input type="email" name="correo" style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 12px;">
                         </div>
-                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">👥 Personas *</label>
+                        <div><label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Persona(s)*</label>
                             <select name="personas" required style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 12px;">
-                                <option value="2">2 personas</option><option value="3">3 personas</option><option value="4">4 personas</option>
+                              <option value="1">1 persona <option value="2">2 personas</option><option value="3">3 personas</option><option value="+4">4 o mas personas</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.1rem;">🕒 Horario (<?= $totalDisponibles ?> disponibles)</label>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.1rem;">Horario (<?= $totalDisponibles ?> disponibles)</label>
                         <select name="hora" id="hora" required style="width: 100%; padding: 1.3rem; border: 3px solid var(--dusty-taupe); border-radius: 15px; font-size: 1.1rem; font-weight: 600;">
                             <option value="">Selecciona horario</option>
                             <?php foreach($horasDisponibles as $hora): ?>
-                            <option value="<?= $hora ?>"><?= $hora ?> ✅</option>
+                            <option value="<?= $hora ?>"><?= $hora ?> </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1.1rem;">Notas de la Reserva:</label>
                     <textarea name="notas" rows="3" placeholder="Alergias, preferencias..." style="width: 100%; padding: 1rem; border: 2px solid var(--dusty-taupe); border-radius: 12px; margin-bottom: 2rem; resize: vertical;"></textarea>
                     
-                    <button type="submit" style="width: 100%; padding: 1.4rem; font-size: 1.2rem; font-weight: 700; border-radius: 15px; background: var(--primary); color: white; border: none; cursor: pointer;">
+                    <button type="submit" style="width: 100%; padding: 1.4rem; font-size: 1.2rem; font-weight: 700; border-radius: 15px; background: var(--primary); color: black; border: none; cursor: pointer;">
                         <i class="fas fa-calendar-check"></i> ¡Reservar Ahora!
                     </button>
                 </form>

@@ -40,4 +40,12 @@ function insertarProductosPrueba($conn) {
     }
     return false;
 }
+// Agregar al final del archivo menu-functions.php
+function getProductosDestacados($conn, $limit = 3) {
+    $limit = (int)$limit;
+    $sql = "SELECT * FROM productos ORDER BY id DESC LIMIT $limit";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>

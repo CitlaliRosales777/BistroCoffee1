@@ -118,7 +118,7 @@ $moneda = $datosTicket['moneda'] ?? 'MXN';
     <div class="ticket-container">
         <!-- HEADER -->
         <header class="ticket-header">
-            <div class="logo">🍽️ BISTRO & COFFEE</div>
+            <div class="logo">BISTRO & COFFEE</div>
             <div class="slogan">Buen Sabor, Buen Momento</div>
             <div class="ticket-id">
                 <i class="fas fa-ticket-alt me-2"></i>
@@ -130,16 +130,16 @@ $moneda = $datosTicket['moneda'] ?? 'MXN';
         <div class="ticket-body">
             <!-- Info -->
             <div class="info-line">
-                <span>📅 Fecha/Hora:</span>
+                <span>Fecha/Hora:</span>
                 <span><?= htmlspecialchars($datosTicket['fecha'] ?? date('d/m/Y H:i:s')) ?></span>
             </div>
             <div class="info-line">
-                <span>👤 Cajero:</span>
+                <span>Cajero:</span>
                 <span><?= htmlspecialchars($datosTicket['cajero'] ?? 'Cliente Web') ?></span>
             </div>
             <?php if (isset($datosTicket['tasa']) && $moneda === 'USD'): ?>
             <div class="info-line">
-                <span>💱 Tasa USD:</span>
+                <span>Tasa USD:</span>
                 <span>$<?= number_format($datosTicket['tasa'], 2) ?> MXN</span>
             </div>
             <?php endif; ?>
@@ -188,7 +188,7 @@ $moneda = $datosTicket['moneda'] ?? 'MXN';
         <!-- FOOTER -->
         <footer class="ticket-footer">
             <div style="font-size: 1.1rem; font-weight: 700; color: #8B7355; margin-bottom: 1rem;">
-                ¡Gracias por tu compra! ✨
+                ¡Gracias por tu compra! 
             </div>
             <div style="font-size: 0.9rem; opacity: 0.8;">
                 Guarda esta pantalla o imprime tu ticket<br>
@@ -202,7 +202,7 @@ $moneda = $datosTicket['moneda'] ?? 'MXN';
                 <i class="fas fa-print me-2"></i>Imprimir Ticket
             </button>
             <button onclick="descargarPDF()" class="btn-print btn-download">
-                <i class="fas fa-download me-2"></i>Guardar PDF
+                <i class="fas fa-download me-2"></i>Guardar Ticket
             </button>
             <br><small style="margin-top: 1rem; display: block; color: #666;">
                 <a href="carrito.php" style="color: #8B7355;">← Nuevo pedido</a>

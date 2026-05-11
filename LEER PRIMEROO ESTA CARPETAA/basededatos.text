@@ -729,3 +729,40 @@ SELECT Estado, COUNT(*) as Cantidad FROM Reservas GROUP BY Estado;
 GO
 
 SELECT TOP 3 * FROM Reservas;
+
+--10 may
+USE CoffeBistro;
+GO
+
+-- 1. VER estados EXISTENTES en Ventas_Caja
+SELECT 
+    Estado_Cocina,
+    COUNT(*) as Cantidad,
+    MIN(Fecha) as Mas_Antigua,
+    MAX(Fecha) as Mas_Reciente
+FROM Ventas_Caja 
+GROUP BY Estado_Cocina
+ORDER BY Cantidad DESC;
+
+-- 2. VER últimas 10 órdenes
+SELECT TOP 10 
+    Id_Venta, Fecha, Cajero, Total, Estado_Cocina
+FROM Ventas_Caja 
+ORDER BY Fecha DESC;
+
+-- Cambiar las últimas 2 órdenes a canceladas
+UPDATE TOP (2) Ventas_Caja 
+SET Estado_Cocina = 'cancelado'
+WHERE Estado_Cocina = 'ingreso' 
+AND Fecha > DATEADD(HOUR, -2, GETDATE());
+
+PRINT '✅ 2 órdenes cambiadas a cancelado';
+
+-- Crear 3 órdenes de prueba CANCELADAS
+INSERT INTO Ventas_Caja (Cajero, Total, Moneda, Productos, Estado_Cocina, Fecha)
+VALUES 
+    ('Juan Pérez', 150.00, 'MXN', '[{"nombre":"Latte","cantidad":2},{"nombre":"Croissant","cantidad":1}]', 'cancelado', DATEADD(MINUTE, -30, GETDATE())),
+    ('María López', 89.50, 'MXN', '[{"nombre":"Americano","cantidad":1},{"nombre":"Muffin","cantidad":2}]', 'cancelado', DATEADD(MINUTE, -45, GETDATE())),
+    ('Carlos Ruiz', 220.00, 'MXN', '[{"nombre":"Capuchino","cantidad":3},{"nombre":"Pan dulce","cantidad":2}]', 'cancelado', DATEADD(MINUTE, -60, GETDATE()));
+
+PRINT '✅ 3 órdenes CANCELADAS creadas para prueba';

@@ -64,57 +64,93 @@ require_once 'config/database.php';
         </div>
     </section>
 
-    <!-- MENÚ DESTACADO (Simulado pq la base de datos usada no tiene datos insertados aun jsjsjs) -->
+    <!-- MENÚ DESTACADO (TUS PRODUCTOS REALES - SIN DEPENDENCIAS) -->
     <section class="menu-preview" style="padding: 6rem 2rem; background: var(--logo-cream);">
-        <div class="container">
-            <div class="section-header text-center mb-5">
-                <h2 style="font-size: 3rem; color: var(--stone-brown); margin-bottom: 1rem;">Menú Destacado</h2>
-                <p style="font-size: 1.2rem; color: var(--stone-brown);">Nuestras especialidades del día</p>
-            </div>
-            
-            <div class="menu-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
-                <!-- Plato 1 -->
-                <div class="menu-item card">
-                    <div class="menu-image" style="height: 200px; background: linear-gradient(45deg, #f5a623, #ff8c42); border-radius: 20px 20px 0 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white;">
-                        🥞
-                    </div>
-                    <div class="p-4">
-                        <h4>Pancakes Clásicos</h4>
-                        <p class="menu-desc" style="color: #666; margin-bottom: 1rem;">Pancakes esponjosos con maple y frutas frescas</p>
-                        <div class="menu-price" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">$85</div>
-                    </div>
-                </div>
-
-                <!-- Plato 2 -->
-                <div class="menu-item card">
-                    <div class="menu-image" style="height: 200px; background: linear-gradient(45deg, #2c5530, #4a7c59); border-radius: 20px 20px 0 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white;">
-                        ☕
-                    </div>
-                    <div class="p-4">
-                        <h4>Café Especial Casa</h4>
-                        <p class="menu-desc" style="color: #666; margin-bottom: 1rem;">100% Arábica tostado artesanalmente</p>
-                        <div class="menu-price" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">$45</div>
-                    </div>
-                </div>
-
-                <!-- Plato 3 -->
-                <div class="menu-item card">
-                    <div class="menu-image" style="height: 200px; background: linear-gradient(45deg, #8b4513, #a0522d); border-radius: 20px 20px 0 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white;">
-                        🥩
-                    </div>
-                    <div class="p-4">
-                        <h4>Milanesa</h4>
-                        <p class="menu-desc" style="color: #666; margin-bottom: 1rem;">Corte premium empanizado y papas (no hay nada de premiun en esto jsjsj) </p>
-                        <div class="menu-price" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">$285</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; padding: 1rem;">
-                <a href="pages/menu.php" class="btn btn-outline">Ver Menú Completo</a>
-            </div>
+     <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 style="font-size: 3rem; color: var(--stone-brown); margin-bottom: 1rem;">Menú Destacado</h2>
+            <p style="font-size: 1.2rem; color: var(--stone-brown);">Nuestras especialidades del día</p>
         </div>
+        
+        <?php
+        $productosDestacados = [];
+        try {
+            // SOLO database.php (que SÍ funciona)
+            require_once 'config/database.php';
+            
+            // FUNCIÓN PROPIA - IGUAL A TU menu.php pero LIMIT 3
+            $sql = "SELECT * FROM productos ORDER BY id DESC LIMIT 3";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $productosDestacados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            $productosDestacados = [];
+        }
+        ?>
+        
+        <?php if (!empty($productosDestacados)): ?>
+            <div class="menu-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <?php foreach ($productosDestacados as $producto): ?>
+                    <div class="menu-item card">
+                        <!-- EXACTAMENTE IGUAL A TU menu.php -->
+                        <div class="menu-image" style="height: 200px; position: relative; overflow: hidden; border-radius: 20px 20px 0 0;">
+                            <?php if (!empty($producto['Imagen']) && file_exists("assets/images/productos/" . $producto['Imagen'])): ?>
+                                <img src="assets/images/productos/<?= htmlspecialchars($producto['Imagen']) ?>" 
+                                     alt="<?= htmlspecialchars($producto['Nombre']) ?>" 
+                                     style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                            <?php else: ?>
+                                <?php 
+                                $emoji = '🍽️';
+                                $nombre = strtolower($producto['Nombre']);
+                                if (strpos($nombre, 'café') !== false || strpos($nombre, 'coffee') !== false) $emoji = '☕';
+                                elseif (strpos($nombre, 'pancake') !== false || strpos($nombre, 'panqueque') !== false) $emoji = '🥞';
+                                elseif (strpos($nombre, 'milanesa') !== false) $emoji = '🥩';
+                                elseif (strpos($nombre, 'hamburguesa') !== false || strpos($nombre, 'burger') !== false) $emoji = '🍔';
+                                ?>
+                                <div style="height: 100%; background: linear-gradient(45deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white;">
+                                    <?= $emoji ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="p-4">
+                            <h4 style="font-size: 1.3rem; margin-bottom: 0.5rem;"><?= htmlspecialchars($producto['Nombre']) ?></h4>
+                            <p class="menu-desc" style="color: #666; margin-bottom: 1rem; font-size: 0.95rem;">
+                                <?= htmlspecialchars(substr($producto['Descripcion'], 0, 80)) ?>...
+                            </p>
+                            <div class="menu-price" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                                $<span><?= number_format($producto['precio'], 0) ?></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <!-- CONTADOR DINÁMICO -->
+            <?php 
+            $totalProductos = $conn->query("SELECT COUNT(*) FROM productos")->fetchColumn();
+            ?>
+            <div style="text-align: right; margin: 2rem 0; color: #666; font-size: 1.1rem;">
+                y <?= $totalProductos ?> platillos más disponibles
+            </div>
+            
+        <?php else: ?>
+            <div style="text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-utensils" style="font-size: 6rem; color: var(--dusty-taupe); opacity: 0.5; margin-bottom: 2rem;"></i>
+                <h3 style="color: var(--stone-brown);">No hay productos disponibles</h3>
+                <p style="color: #666; font-size: 1.1rem;">Revisa nuestro menú completo</p>
+            </div>
+        <?php endif; ?>
+        
+        <div class="text-center mt-5">
+            <a href="pages/menu.php" class="btn btn-outline" style="font-size: 1.1rem; padding: 1rem 2.5rem;">
+                <i class="fas fa-list"></i> Ver Menú Completo
+            </a>
+        </div>
+     </div>
     </section>
+    
 
     <!-- TESTIMONIOS FAKEEE-->
     <section class="testimonials" style="padding: 6rem 2rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
