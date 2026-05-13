@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// ✅ 🎯 CAMBIO PRINCIPAL: CARGAR STATS DESPUÉS DE PROCESAR ACCIONES
+// ✅ CARGAR DATOS
 $stats = statsReservas($conn);
 $reservas = getReservas($conn, $filtros);
 ?>
@@ -52,32 +52,77 @@ $reservas = getReservas($conn, $filtros);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="center=device-center, initial-scale=1.0">
     <title>Reservas - Admin | Bistro Coffee</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        :root {
-            --primary: #f4a261;
-            --secondary: #e76f51;
-            --dark: #264653;
+        body {
+            background: var(--logo-cream) !important;
         }
-        .stats-card { transition: transform 0.2s; }
-        .stats-card:hover { transform: translateY(-5px); }
-        .status-badge { font-size: 0.8rem; }
-        .table-actions .btn { margin: 0 1px; }
-        body { background: #f8f9fa; }
+        
+        .admin-main {
+            background: var(--logo-cream);
+        }
+        
+        .card {
+            background: var(--bg-card) !important;
+            border: 1px solid rgba(169, 146, 125, 0.2) !important;
+        }
+        
+        .card-header {
+            background: rgba(169, 146, 125, 0.1) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .table thead {
+            background: var(--dusty-taupe) !important;
+            color: var(--white-smoke) !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(169, 146, 125, 0.08) !important;
+        }
+        
+        .btn-primary {
+            background: var(--dusty-taupe) !important;
+            border-color: var(--dusty-taupe) !important;
+        }
+        
+        .btn-success {
+            background: var(--stone-brown) !important;
+            border-color: var(--stone-brown) !important;
+        }
+        
+        .btn-outline-danger {
+            color: #a9927d !important;
+            border-color: #a9927d !important;
+        }
+        
+        .badge.bg-success { background: var(--stone-brown) !important; }
+        .badge.bg-warning { background: #fff3cd !important; color: #856404 !important; }
+        .badge.bg-danger { background: #f8d7da !important; color: #721c24 !important; }
+        
+        h1, h5, h6 {
+            color: var(--text-primary) !important;
+        }
+        
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
     </style>
 </head>
 <body>
-    
 
-    <main class="container-fluid px-4 py-4" style="margin-left: 30px;">
+    <main class="container-fluid px-4 py-4 admin-main" style="margin-left: 10px;">
+        
         <!-- HEADER -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-1">
-                    <i class="fas fa-calendar-check text-primary me-2"></i>
+                    <i class="fas fa-calendar-check me-2" style="color: var(--dusty-taupe);"></i>
                     Gestión de Reservas
                 </h1>
                 <small class="text-muted">Controla todas las reservas del restaurante</small>
@@ -98,7 +143,7 @@ $reservas = getReservas($conn, $filtros);
 
         <!-- FILTROS -->
         <div class="card shadow mb-4">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros</h6>
             </div>
             <div class="card-body">
@@ -132,7 +177,7 @@ $reservas = getReservas($conn, $filtros);
 
         <!-- TABLA -->
         <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center bg-light">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="fas fa-list me-2"></i>
                     Reservas (<?= count($reservas) ?>)
@@ -164,90 +209,72 @@ $reservas = getReservas($conn, $filtros);
                             </tr>
                         </thead>
                         <tbody>
-    <?php foreach($reservas as $reserva): ?>
-    <tr>
-        <!-- 1️⃣ FECHA -->
-        <td><strong><?= htmlspecialchars($reserva['FechaFmt'] ?? (!empty($reserva['Fecha']) ? date('d/m/Y', strtotime($reserva['Fecha'])) : 'Sin fecha')) ?></strong></td>
-        
-        <!-- 2️⃣ HORA -->
-        <td><strong class="text-primary"><?= htmlspecialchars($reserva['Hora'] ?? trim(substr($reserva['Hora'] ?? '00:00', 0, 5))) ?></strong></td>
-        
-        <!-- 3️⃣ PERSONAS -->
-        <td><span class="badge bg-info fs-6"><?= (int)($reserva['Personas'] ?? 0) ?>p</span></td>
-        
-        <!-- 4️⃣ CLIENTE -->
-        <td><?= htmlspecialchars($reserva['Nombre'] ?? 'N/A') ?></td>
-        
-        <!-- 5️⃣ TELÉFONO -->
-        <td>
-            <a href="tel:<?= htmlspecialchars($reserva['Telefono'] ?? '') ?>" class="text-decoration-none">
-                <?= htmlspecialchars($reserva['Telefono'] ?? '') ?>
-            </a>
-        </td>
-        
-        <!-- 6️⃣ ESTADO -->
-        <td>
-            <?php 
-            $estado = $reserva['Estado'] ?? 'Pendiente';
-            $badgeClass = match($estado) {
-                'Confirmada' => 'bg-success',
-                'Pendiente' => 'bg-warning text-dark',
-                'Completada' => 'bg-secondary',
-                'Cancelada' => 'bg-danger',
-                default => 'bg-light'
-            };
-            ?>
-            <span class="badge <?= $badgeClass ?> status-badge px-3 py-2">
-                <?= htmlspecialchars($estado) ?>
-            </span>
-        </td>
-        
-        <!-- 7️⃣ NOTAS -->
-        <td>
-            <?php if (!empty($reserva['Notas'])): ?>
-                <span class="text-muted small" title="<?= htmlspecialchars($reserva['Notas']) ?>">
-                    <i class="fas fa-note-sticky me-1"></i>
-                    <?= strlen($reserva['Notas']) > 20 ? substr($reserva['Notas'], 0, 20) . '...' : $reserva['Notas'] ?>
-                </span>
-            <?php else: ?>
-                <span class="text-muted small">—</span>
-            <?php endif; ?>
-        </td>
-        
-       <!-- 8️⃣ ACCIONES -->
-<td class="table-actions">
-    <?php if (($reserva['Estado'] ?? '') == 'Pendiente'): ?>
-        <form method="POST" class="d-inline me-1">
-            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
-            <button type="submit" name="confirmar" class="btn btn-sm btn-success" title="Confirmar">
-                <i class="fas fa-check"></i>
-            </button>
-        </form>
-        <form method="POST" class="d-inline me-1">
-            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
-            <button type="submit" name="cancelar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar reserva?')" title="Cancelar">
-                <i class="fas fa-times"></i>
-            </button>
-        </form>
-    <?php elseif (($reserva['Estado'] ?? '') == 'Confirmada'): ?>
-        <form method="POST" class="d-inline">
-            <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
-            <button type="submit" name="completar" class="btn btn-sm btn-outline-secondary" title="Marcar completada">
-                <i class="fas fa-flag-checkered"></i>
-            </button>
-        </form>
-    <?php endif; ?>
-    <!-- Eliminar siempre -->
-    <form method="POST" class="d-inline">
-        <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
-        <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar permanentemente?')" title="Eliminar">
-            <i class="fas fa-trash-alt"></i>
-        </button>
-    </form>
-</td>
-    </tr>
-    <?php endforeach; ?>
-</tbody>
+                        <?php foreach($reservas as $reserva): ?>
+                        <tr>
+                            <td><strong><?= htmlspecialchars($reserva['FechaFmt'] ?? date('d/m/Y', strtotime($reserva['Fecha']))) ?></strong></td>
+                            <td><strong><?= htmlspecialchars(substr($reserva['Hora'] ?? '', 0, 5)) ?></strong></td>
+                            <td><span class="badge bg-info"><?= (int)($reserva['Personas'] ?? 0) ?>p</span></td>
+                            <td><?= htmlspecialchars($reserva['Nombre'] ?? 'N/A') ?></td>
+                            <td>
+                                <a href="tel:<?= htmlspecialchars($reserva['Telefono'] ?? '') ?>">
+                                    <?= htmlspecialchars($reserva['Telefono'] ?? '') ?>
+                                </a>
+                            </td>
+                            <td>
+                                <?php 
+                                $estado = $reserva['Estado'] ?? 'Pendiente';
+                                $badgeClass = match($estado) {
+                                    'Confirmada' => 'bg-success',
+                                    'Pendiente'  => 'bg-warning text-dark',
+                                    'Completada' => 'bg-secondary',
+                                    'Cancelada'  => 'bg-danger',
+                                    default => 'bg-light text-dark'
+                                };
+                                ?>
+                                <span class="badge <?= $badgeClass ?> status-badge px-3 py-2">
+                                    <?= htmlspecialchars($estado) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if (!empty($reserva['Notas'])): ?>
+                                    <span class="text-muted small"><?= strlen($reserva['Notas']) > 25 ? substr($reserva['Notas'], 0, 25) . '...' : $reserva['Notas'] ?></span>
+                                <?php else: ?>
+                                    <span class="text-muted">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="table-actions">
+                                <?php if (($reserva['Estado'] ?? '') == 'Pendiente'): ?>
+                                    <form method="POST" class="d-inline me-1">
+                                        <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+                                        <button type="submit" name="confirmar" class="btn btn-sm btn-success" title="Confirmar">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" class="d-inline me-1">
+                                        <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+                                        <button type="submit" name="cancelar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar reserva?')" title="Cancelar">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                <?php elseif (($reserva['Estado'] ?? '') == 'Confirmada'): ?>
+                                    <form method="POST" class="d-inline">
+                                        <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+                                        <button type="submit" name="completar" class="btn btn-sm btn-outline-secondary" title="Marcar completada">
+                                            <i class="fas fa-flag-checkered"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                                
+                                <form method="POST" class="d-inline">
+                                    <input type="hidden" name="id" value="<?= (int)($reserva['Id_Reserva'] ?? 0) ?>">
+                                    <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar permanentemente?')" title="Eliminar">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        </tbody>
                     </table>
                 </div>
                 <?php endif; ?>

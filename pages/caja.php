@@ -432,7 +432,7 @@ $productos = db_fetch_all($conn, "
                     <a href="../pages/dashboard.php" class="btn btn-outline-light btn-sm me-2">
                         <i class="fas fa-home"></i> Panel Principal
                     </a>
-                    <a href="../logout.php" class="btn btn-warning btn-sm">
+                       <a href="logout.php" class="btn btn-light">
                         <i class="fas fa-sign-out-alt"></i> Cerrar
                     </a>
                 </div>

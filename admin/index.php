@@ -25,7 +25,7 @@ $reservas = getReservasRecientes($conn, 5);
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body style="background: var(--bg-section-light);">
+<body style="background: var(--logo-cream);">
     
     <!-- SIDEBAR (igual) -->
     <aside class="sidebar" style="position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, var(--jet-black) 0%, var(--black) 100%); padding: 2rem 0; z-index: 1000; box-shadow: 4px 0 20px var(--shadow-heavy);">

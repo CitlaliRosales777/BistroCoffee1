@@ -1,55 +1,99 @@
 <?php
 require_once '../config/database.php';
+require_once '../includes/auth.php';
+
+$usuario = requiereRol($conn, ['Administrador']);
 
 header('Content-Type: application/json');
 
 $periodo = $_GET['periodo'] ?? 'hoy';
-$inicio = $_GET['inicio'] ?? '';
-$fin = $_GET['fin'] ?? '';
+$inicio  = $_GET['inicio'] ?? '';
+$fin     = $_GET['fin'] ?? '';
 
-function gananciasPeriodo($conn, $inicio, $fin) {
-    $sql = "SELECT 
-        COUNT(*) as pedidos,
-        ISNULL(SUM(dp.cantidad * dp.precio_unitario), 0) as total,
-        ISNULL(SUM(dp.cantidad), 0) as productos
-    FROM Pedidos p 
-    JOIN Detalle_Pedidos dp ON p.Id_Pedido = dp.pedido_id 
-    WHERE p.estado != 'Cancelado'";
-    
-    $params = [];
-    
-    if($inicio && $fin) {
-        $sql .= " AND p.fecha BETWEEN ? AND ?";
-        $params = [$inicio, $fin];
-    } elseif($periodo === 'hoy') {
-        $sql .= " AND CAST(p.fecha AS DATE) = CAST(GETDATE() AS DATE)";
-    } elseif($periodo === 'semana') {
-        $sql .= " AND DATEPART(WEEK, p.fecha) = DATEPART(WEEK, GETDATE()) 
-                  AND YEAR(p.fecha) = YEAR(GETDATE())";
-    } elseif($periodo === 'mes') {
-        $sql .= " AND MONTH(p.fecha) = MONTH(GETDATE()) 
-                  AND YEAR(p.fecha) = YEAR(GETDATE())";
-    } elseif($periodo === 'anio') {
-        $sql .= " AND YEAR(p.fecha) = YEAR(GETDATE())";
-    }
-    
-    $result = db_fetch_one($conn, $sql, $params);
-    return [
-        'total' => (float)($result['total'] ?? 0),
-        'pedidos' => (int)($result['pedidos'] ?? 0),
-        'productos' => (int)($result['productos'] ?? 0)
+try {
+    $response = [
+        'hoy'       => 0,
+        'semana'    => 0,
+        'mes'       => 0,
+        'total'     => 0,
+        'pedidos'   => 0,
+        'productos' => 0
     ];
+
+    // ====================== HOY ======================
+    $sql_hoy = "SELECT 
+        COUNT(*) as pedidos,
+        ISNULL(SUM(Total), 0) as total
+    FROM Ventas_Caja 
+    WHERE CONVERT(DATE, Fecha) = CONVERT(DATE, GETDATE())
+      AND Estado_Cocina != 'cancelado'";
+
+    $res = db_fetch_one($conn, $sql_hoy);
+    $response['hoy'] = (float)($res['total'] ?? 0);
+
+    // ====================== ESTA SEMANA ======================
+    $sql_semana = "SELECT 
+        COUNT(*) as pedidos,
+        ISNULL(SUM(Total), 0) as total
+    FROM Ventas_Caja 
+    WHERE DATEPART(WEEK, Fecha) = DATEPART(WEEK, GETDATE())
+      AND YEAR(Fecha) = YEAR(GETDATE())
+      AND Estado_Cocina != 'cancelado'";
+
+    $res = db_fetch_one($conn, $sql_semana);
+    $response['semana'] = (float)($res['total'] ?? 0);
+
+    // ====================== ESTE MES ======================
+    $sql_mes = "SELECT 
+        COUNT(*) as pedidos,
+        ISNULL(SUM(Total), 0) as total
+    FROM Ventas_Caja 
+    WHERE MONTH(Fecha) = MONTH(GETDATE())
+      AND YEAR(Fecha) = YEAR(GETDATE())
+      AND Estado_Cocina != 'cancelado'";
+
+    $res = db_fetch_one($conn, $sql_mes);
+    $response['mes'] = (float)($res['total'] ?? 0);
+
+    // ====================== PERIODO PERSONALIZADO O TOTAL ======================
+    if ($periodo === 'personalizado' && !empty($inicio) && !empty($fin)) {
+        $sql = "SELECT 
+            COUNT(*) as pedidos,
+            ISNULL(SUM(Total), 0) as total
+        FROM Ventas_Caja 
+        WHERE Fecha BETWEEN ? AND ?
+          AND Estado_Cocina != 'cancelado'";
+
+        $params = [$inicio . ' 00:00:00', $fin . ' 23:59:59'];
+        $res = db_fetch_one($conn, $sql, $params);
+    } else {
+        // Total general
+        $sql = "SELECT 
+            COUNT(*) as pedidos,
+            ISNULL(SUM(Total), 0) as total
+        FROM Ventas_Caja 
+        WHERE Estado_Cocina != 'cancelado'";
+        
+        $res = db_fetch_one($conn, $sql);
+    }
+
+    $response['total']     = (float)($res['total'] ?? 0);
+    $response['pedidos']   = (int)($res['pedidos'] ?? 0);
+
+    // Productos vendidos (aproximado desde JSON)
+    $sql_prod = "SELECT ISNULL(SUM(JSON_VALUE(value, '$.cantidad')), 0) as productos
+                 FROM Ventas_Caja 
+                 CROSS APPLY OPENJSON(Productos)
+                 WHERE Estado_Cocina != 'cancelado'";
+    $res_prod = db_fetch_one($conn, $sql_prod);
+    $response['productos'] = (int)($res_prod['productos'] ?? 0);
+
+    echo json_encode($response);
+
+} catch (Exception $e) {
+    error_log("Error reportes-ajax: " . $e->getMessage());
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'hoy' => 0, 'semana' => 0, 'mes' => 0, 'total' => 0
+    ]);
 }
-
-$response = [];
-
-// Calcular por períodos
-$response['hoy'] = gananciasPeriodo($conn, '', '')->total;
-$response['semana'] = gananciasPeriodo($conn, '', 'semana')->total;
-$response['mes'] = gananciasPeriodo($conn, '', 'mes')->total;
-$response['total'] = gananciasPeriodo($conn, $inicio, $fin)['total'];
-$response['pedidos'] = gananciasPeriodo($conn, $inicio, $fin)['pedidos'];
-$response['productos'] = gananciasPeriodo($conn, $inicio, $fin)['productos'];
-
-echo json_encode($response);
-?>

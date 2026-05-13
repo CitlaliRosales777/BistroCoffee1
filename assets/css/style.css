@@ -781,3 +781,30 @@ input::placeholder, textarea::placeholder {
         margin-left: 0 !important;
     }
 }
+/* ====================== ADMIN MAIN ====================== */
+.admin-main {
+    background: var(--logo-cream) !important;
+    min-height: 100vh;
+}
+
+.admin-header {
+    background: transparent;
+    border-bottom: 2px solid rgba(169, 146, 125, 0.15);
+}
+
+/* Cards con mejor contraste sobre fondo crema */
+.stat-card.card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(169, 146, 125, 0.15);
+}
+
+.recent-section table {
+    background: var(--bg-card) !important;
+}
+
+/* Ajuste de contraste en textos sobre fondo claro */
+.admin-main h1,
+.admin-main h2,
+.admin-main h3 {
+    color: var(--text-primary) !important;
+}

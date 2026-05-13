@@ -4,27 +4,14 @@ require_once '../includes/auth.php';
 
 $usuario = requiereRol($conn, ['Administrador']);
 
-// INICIALIZAR VARIABLES
+// INICIALIZAR VARIABLES (solo para primera carga)
 $total_productos = 0;
-$total_ventas = 0;
-$total_ingresos = 0;
-$productos = [];
 $mensaje = '';
 
-// Obtener datos
+// Obtener datos generales iniciales
 try {
     $productos = db_fetch_all($conn, "SELECT * FROM Productos ORDER BY Nombre ASC");
     $total_productos = count($productos);
-    
-    $ventas_result = db_fetch_one($conn, "SELECT COUNT(*) as total FROM Ventas");
-    $total_ventas = $ventas_result['total'] ?? 0;
-    
-    $ingresos_result = db_fetch_one($conn, "
-        SELECT ISNULL(SUM(Total), 0) as total 
-        FROM Ventas WHERE estado = 'Completada'
-    ");
-    $total_ingresos = $ingresos_result['total'] ?? 0;
-    
 } catch (Exception $e) {
     $mensaje = "Error al cargar datos: " . $e->getMessage();
 }
@@ -39,10 +26,18 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --dusty-taupe: #A9927D; --stone-brown: #8D7B68; --text-primary: #2C1810; }
-        .hover-shadow:hover { transform: translateY(-5px); transition: all 0.3s; }
-        .spinner-border { width: 3rem; height: 3rem; }
-        .card-ganancias { background: linear-gradient(135deg, #f8f9fa, #e9ecef); }
+        :root { 
+            --dusty-taupe: #A9927D; 
+            --stone-brown: #8D7B68; 
+            --text-primary: #2C1810; 
+        }
+        .hover-shadow:hover { 
+            transform: translateY(-5px); 
+            transition: all 0.3s; 
+        }
+        .card-ganancias { 
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+        }
     </style>
 </head>
 
@@ -65,7 +60,7 @@ try {
         </div>
         <?php endif; ?>
 
-        <!--FILTRO GANANCIAS-->
+        <!-- FILTRO GANANCIAS -->
         <div class="row mb-4 g-3">
             <div class="col-md-3">
                 <label class="form-label fw-bold small">Filtrar Ganancias:</label>
@@ -80,10 +75,11 @@ try {
             <div class="col-md-3" id="fechaPersonalizada" style="display:none;">
                 <label class="form-label fw-bold small">Desde:</label>
                 <input type="date" id="fechaInicio" class="form-control form-control-sm" value="<?= date('Y-m-d', strtotime('-30 days')) ?>">
-                <input type="date" id="fechaFin" class="form-control form-control-sm mt-1" value="<?= date('Y-m-d') ?>">
+                <label class="form-label fw-bold small mt-2">Hasta:</label>
+                <input type="date" id="fechaFin" class="form-control form-control-sm" value="<?= date('Y-m-d') ?>">
             </div>
-            <div class="col-md-6 d-flex align-items-end">
-                <button onclick="cargarReporte()" class="btn btn-outline-primary btn-sm me-2">
+            <div class="col-md-6 d-flex align-items-end gap-2">
+                <button onclick="cargarReporte()" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-sync-alt me-1"></i>Actualizar
                 </button>
                 <button onclick="exportarReporte()" class="btn btn-success btn-sm">
@@ -95,40 +91,17 @@ try {
         <!-- CARD GANANCIAS DINÁMICA -->
         <div class="row mb-5">
             <div class="col-12">
-                <div id="cardGanancias" class="card shadow-lg border-0 card-ganancias">
-                    <div class="card-body text-center p-4">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <h5 class="text-muted">Selecciona un período arriba</h5>
-                    </div>
-                </div>
+                <div id="cardGanancias" class="card shadow-lg border-0 card-ganancias"></div>
             </div>
         </div>
 
-        <!-- BOTONES EXPORTAR -->
-        <div class="row mb-5 g-3">
-            <div class="col-md-6">
-                <a href="exportar-excel.php?tipo=csv" class="btn btn-outline-success w-100 h-100 p-4 text-center" style="border-radius: 12px; font-size: 16px;">
-                    <i class="fas fa-file-csv fa-2x mb-2 d-block"></i>
-                    <strong>CSV</strong><br><small>Datos puros</small>
-                </a>
-            </div>
-            <div class="col-md-6">
-                <a href="exportar-excel.php?tipo=excel" class="btn btn-primary w-100 h-100 p-4 text-center" style="border-radius: 12px; font-size: 16px;">
-                    <i class="fas fa-file-excel fa-2x mb-2 d-block"></i>
-                    <strong>Excel</strong><br><small>Con diseño</small>
-                </a>
-            </div>
-        </div>
-
-        <!-- ESTADÍSTICAS GENERALES -->
+        <!-- ESTADÍSTICAS DINÁMICAS -->
         <div class="row g-4 mb-5">
             <div class="col-lg-4 col-md-6">
                 <div class="card h-100 shadow border-0 hover-shadow">
                     <div class="card-body text-center p-4">
                         <i class="fas fa-utensils fa-3x text-warning mb-3"></i>
-                        <h3 class="display-4 fw-bold text-primary"><?= $total_productos ?></h3>
+                        <h3 class="display-4 fw-bold text-primary" id="totalProductos"><?= $total_productos ?></h3>
                         <p class="mb-0 fw-semibold text-muted fs-5">Productos Total</p>
                     </div>
                 </div>
@@ -137,8 +110,8 @@ try {
                 <div class="card h-100 shadow border-0 hover-shadow">
                     <div class="card-body text-center p-4">
                         <i class="fas fa-shopping-cart fa-3x text-danger mb-3"></i>
-                        <h3 class="display-4 fw-bold text-success"><?= number_format($total_ventas) ?></h3>
-                        <p class="mb-0 fw-semibold text-muted fs-5">Ventas Totales</p>
+                        <h3 class="display-4 fw-bold text-success" id="totalVentas">0</h3>
+                        <p class="mb-0 fw-semibold text-muted fs-5">Pedidos</p>
                     </div>
                 </div>
             </div>
@@ -146,10 +119,26 @@ try {
                 <div class="card h-100 shadow border-0 hover-shadow">
                     <div class="card-body text-center p-4">
                         <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
-                        <h3 class="display-4 fw-bold">$<?= number_format($total_ingresos, 2) ?></h3>
-                        <p class="mb-0 fw-semibold text-muted fs-5">Ingresos Totales</p>
+                        <h3 class="display-4 fw-bold" id="totalIngresos">$0</h3>
+                        <p class="mb-0 fw-semibold text-muted fs-5">Ingresos</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- BOTONES EXPORTAR + TABLA PREVIEW -->
+        <div class="row mb-5 g-3">
+            <div class="col-md-6">
+                <a href="exportar-excel.php?tipo=csv" class="btn btn-outline-success w-100 h-100 p-4 text-center" style="border-radius: 12px; font-size: 16px;">
+                    <i class="fas fa-file-csv fa-2x mb-2 d-block"></i>
+                    <strong>CSV de Productos</strong><br><small>Datos puros</small>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="exportar-excel.php?tipo=excel" class="btn btn-primary w-100 h-100 p-4 text-center" style="border-radius: 12px; font-size: 16px;">
+                    <i class="fas fa-file-excel fa-2x mb-2 d-block"></i>
+                    <strong>Excel de Productos</strong><br><small>Con diseño</small>
+                </a>
             </div>
         </div>
 
@@ -188,80 +177,71 @@ try {
         </div>
     </main>
 
-    <!-- JAVASCRIPT al FINAL -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    let timeout;
     function cargarReporte() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            const periodo = document.getElementById('filtroPeriodo').value;
-            const inicio = document.getElementById('fechaInicio').value;
-            const fin = document.getElementById('fechaFin').value;
-            
-            document.getElementById('fechaPersonalizada').style.display = 
-                periodo === 'personalizado' ? 'block' : 'none';
-            
-            fetch(`reportes-ajax.php?periodo=${periodo}&inicio=${inicio}&fin=${fin}`)
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('cardGanancias').innerHTML = `
-                        <div class="row g-3 text-center">
-                            <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm hover-shadow">
-                                    <div class="card-body bg-primary text-white">
-                                        <i class="fas fa-calendar-day fa-2x mb-2 opacity-75"></i>
-                                        <h3 class="display-6 fw-bold">$${data.hoy?.toLocaleString() || '0'}</h3>
-                                        <small class="fw-bold">Hoy</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm hover-shadow">
-                                    <div class="card-body bg-success text-white">
-                                        <i class="fas fa-calendar-week fa-2x mb-2 opacity-75"></i>
-                                        <h3 class="display-6 fw-bold">$${data.semana?.toLocaleString() || '0'}</h3>
-                                        <small class="fw-bold">Semana</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm hover-shadow">
-                                    <div class="card-body bg-warning text-dark">
-                                        <i class="fas fa-calendar-month fa-2x mb-2 opacity-75"></i>
-                                        <h3 class="display-6 fw-bold">$${data.mes?.toLocaleString() || '0'}</h3>
-                                        <small class="fw-bold">Mes</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm hover-shadow">
-                                    <div class="card-body bg-info text-white">
-                                        <i class="fas fa-dollar-sign fa-2x mb-2 opacity-75"></i>
-                                        <h3 class="display-6 fw-bold">$${data.total?.toLocaleString() || '0'}</h3>
-                                        <small class="fw-bold">Período</small>
-                                        <div class="mt-1">${data.pedidos || 0} pedidos • ${data.productos || 0} items</div>
-                                    </div>
-                                </div>
-                            </div>
+        const periodo = document.getElementById('filtroPeriodo').value;
+        const inicio = document.getElementById('fechaInicio').value;
+        const fin = document.getElementById('fechaFin').value;
+
+        document.getElementById('fechaPersonalizada').style.display = 
+            (periodo === 'personalizado') ? 'block' : 'none';
+
+        // Loader en la card principal
+        document.getElementById('cardGanancias').innerHTML = `
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                <p class="text-muted">Cargando reporte...</p>
+            </div>`;
+
+        fetch(`reportes-ajax.php?periodo=${periodo}&inicio=${inicio}&fin=${fin}`)
+            .then(r => r.json())
+            .then(data => {
+                // ==================== CARD PRINCIPAL ====================
+                let titulo = '', icono = '', subtitulo = '';
+                let valor = 0;
+
+                switch(periodo) {
+                    case 'hoy': titulo = 'Hoy'; icono = 'fa-calendar-day'; valor = data.hoy || 0; subtitulo = 'Ventas del día'; break;
+                    case 'semana': titulo = 'Esta Semana'; icono = 'fa-calendar-week'; valor = data.semana || 0; subtitulo = 'Ventas de la semana'; break;
+                    case 'mes': titulo = 'Este Mes'; icono = 'fa-calendar-month'; valor = data.mes || 0; subtitulo = 'Ventas del mes'; break;
+                    case 'anio': titulo = 'Este Año'; icono = 'fa-calendar-alt'; valor = data.anio || data.total || 0; subtitulo = 'Ventas del año'; break;
+                    case 'personalizado': titulo = 'Período Personalizado'; icono = 'fa-calendar-check'; valor = data.total || 0; subtitulo = `${inicio} al ${fin}`; break;
+                }
+
+                document.getElementById('cardGanancias').innerHTML = `
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <span class="badge bg-light text-dark px-3 py-2 fs-6">${titulo}</span>
+                            <i class="fas ${icono} fa-3x opacity-75" style="color: #6c757d;"></i>
                         </div>
-                    `;
-                }).catch(() => {
-                    document.getElementById('cardGanancias').innerHTML = 
-                        '<div class="alert alert-warning text-center">No hay datos disponibles</div>';
-                });
-        }, 300);
+                        <h2 class="display-3 fw-bold text-center mb-2">$${Number(valor).toLocaleString()}</h2>
+                        <p class="text-center text-muted mb-4">${subtitulo}</p>
+                        <div class="pt-4 border-top text-center">
+                            <strong class="fs-3">${data.pedidos || 0}</strong><br>
+                            <small class="text-muted">Pedidos realizados</small>
+                        </div>
+                    </div>`;
+
+                // ==================== ACTUALIZAR CARDS INFERIORES ====================
+                document.getElementById('totalVentas').textContent = Number(data.pedidos || 0).toLocaleString();
+                document.getElementById('totalIngresos').textContent = '$' + Number(valor).toLocaleString();
+                // Productos total se mantiene global
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('cardGanancias').innerHTML = `
+                    <div class="alert alert-danger text-center m-4">Error al cargar los datos.</div>`;
+            });
     }
-    
+
     function exportarReporte() {
-        const params = new URLSearchParams({
-            periodo: document.getElementById('filtroPeriodo').value,
-            inicio: document.getElementById('fechaInicio').value,
-            fin: document.getElementById('fechaFin').value
-        });
-        window.open('exportar-ganancias.php?' + params, '_blank');
+        const periodo = document.getElementById('filtroPeriodo').value;
+        const inicio = document.getElementById('fechaInicio').value;
+        const fin = document.getElementById('fechaFin').value;
+        window.open(`exportar-ganancias.php?periodo=${periodo}&inicio=${inicio}&fin=${fin}`, '_blank');
     }
-    
+
     // Cargar al iniciar
     document.addEventListener('DOMContentLoaded', () => {
         cargarReporte();
