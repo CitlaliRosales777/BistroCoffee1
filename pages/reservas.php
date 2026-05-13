@@ -11,7 +11,7 @@ if (strtotime($fecha) < strtotime($hoy) || strtotime($fecha) > strtotime($maxDia
     $fecha = $hoy;
 }
 
-$horasLaborables = ['9:00am','10:00am','11:00am','12:00pm', '13:00pm', '14:00pm', '15:00pm', '16:00pm', '17:00pm', '18:00pm', '19:00pm', '20:00pm'];
+$horasLaborables = ['09:00am','10:00am','11:00am','12:00pm', '13:00pm', '14:00pm', '15:00pm', '16:00pm', '17:00pm', '18:00pm', '19:00pm', '20:00pm'];
 $disponibilidades = getDisponibilidades($conn, $fecha);
 
 $totalOcupadas = 0;

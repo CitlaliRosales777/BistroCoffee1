@@ -42,6 +42,22 @@ function validarReserva($conn, $fecha, $hora) {
 }
 
 function guardarReserva($conn, $datos) {
+    // 🔧 ADAPTAR HORA AUTOMÁTICAMENTE al tamaño de la columna
+    $horaOriginal = trim($datos['hora']);
+    
+    // Si la columna es VARCHAR(4), quitar segundos (:00)
+    if (strlen($horaOriginal) > 4) {
+        $hora = substr($horaOriginal, 0, 4); // '09:00' -> '09:0'
+    } else {
+        $hora = $horaOriginal;
+    }
+    
+    // Validación básica
+    if (!preg_match('/^\d{1,2}:\d{1,2}$/', $hora)) {
+        error_log("❌ Hora inválida: '$horaOriginal' -> Adaptada: '$hora'");
+        return false;
+    }
+    
     $sql = "
         INSERT INTO Reservas (Nombre, Telefono, Correo, Personas, Fecha, Hora, Duracion_Minutos, Notas, Estado) 
         VALUES (:nombre, :telefono, :correo, :personas, :fecha, :hora, :duracion, :notas, 'Pendiente')
@@ -54,7 +70,7 @@ function guardarReserva($conn, $datos) {
         'correo' => $datos['correo'] ?? null,
         'personas' => (int)$datos['personas'],
         'fecha' => $datos['fecha'],
-        'hora' => trim($datos['hora']),
+        'hora' => $hora,  // ✅ HORA ADAPTADA (máx 4 caracteres)
         'duracion' => 90,
         'notas' => $datos['notas'] ?? null
     ]);

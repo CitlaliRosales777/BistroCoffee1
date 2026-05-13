@@ -89,10 +89,7 @@ $productos = db_fetch_all($conn, "SELECT * FROM Productos ORDER BY Id_Producto D
 </head>
 <body style="background: var(--bg-section-light);">
     
-    <!-- SIDEBAR -->
-    <?php include 'index.php'; ?>
-
-    <main class="admin-main" style="margin-left: 280px; padding: 2rem; min-height: 100vh;">
+    <main class="admin-main" style="margin-left: 50px; padding: 2rem; min-height: 100vh;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
             <h1 style="color: var(--text-primary); font-size: 2.2rem; margin: 0;">
                 <i class="fas fa-utensils" style="color: var(--dusty-taupe); margin-right: 1rem;"></i>

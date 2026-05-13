@@ -47,9 +47,8 @@ try {
 </head>
 
 <body style="background: var(--bg-section-light);">
-    <?php include 'index.php'; ?>
-
-    <main class="admin-main" style="margin-left: 280px; padding: 2rem; min-height: 100vh;">
+   
+    <main class="admin-main" style="margin-left: 50px; padding: 2rem; min-height: 100vh;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
             <h1 style="color: var(--text-primary); font-size: 2.2rem; margin: 0;">
                 <i class="fas fa-chart-bar" style="color: var(--dusty-taupe); margin-right: 1rem;"></i>

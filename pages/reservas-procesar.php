@@ -28,7 +28,7 @@ if ($datos['personas'] < 2 || $datos['personas'] > 4) $errores[] = 'Personas inv
 
 // ✅ VALIDACIÓN CRÍTICA: Horario ocupado
 if (!validarReserva($conn, $datos['fecha'], $datos['hora'])) {
-    $errores[] = '❌ Ese horario ya está ocupado. Elige otro.';
+    $errores[] = 'Ese horario ya está ocupado. Elige otro.';
 }
 
 if (!empty($errores)) {
@@ -39,7 +39,7 @@ if (!empty($errores)) {
 
 // ✅ Guardar reserva
 if (guardarReserva($conn, $datos)) {
-    $_SESSION['mensaje'] = ['tipo' => 'success', 'texto' => '✅ ¡Reserva creada! Te contactaremos pronto.'];
+    $_SESSION['mensaje'] = ['tipo' => 'success', 'texto' => '¡Reserva creada! Te contactaremos pronto.'];
 } else {
     $_SESSION['mensaje'] = ['tipo' => 'error', 'texto' => 'Error al guardar reserva'];
 }

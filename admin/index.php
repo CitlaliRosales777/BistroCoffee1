@@ -37,28 +37,31 @@ $reservas = getReservasRecientes($conn, 5);
             </div>
         </div>
         
-        <nav class="sidebar-nav" style="padding: 2rem 0;">
-            <a href="index.php" class="nav-item active" style="display: block; color: var(--white-smoke); padding: 1rem 2rem; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s;">
-                <i class="fas fa-tachometer-alt" style="width: 20px; margin-right: 1rem;"></i> Dashboard
-            </a>
-            <a href="menu-gestion.php" class="nav-item" style="display: block; color: var(--white-smoke); padding: 1rem 2rem; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s;">
-                <i class="fas fa-utensils" style="width: 20px; margin-right: 1rem;"></i> Gestión Menú
-            </a>
-            <a href="reservas-admin.php" class="nav-item" style="display: block; color: var(--white-smoke); padding: 1rem 2rem; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s;">
-                <i class="fas fa-calendar-check" style="width: 20px; margin-right: 1rem;"></i> Reservas
-            </a>
-            <a href="reportes.php" class="nav-item" style="display: block; color: var(--white-smoke); padding: 1rem 2rem; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s;">
-                <i class="fas fa-chart-bar" style="width: 20px; margin-right: 1rem;"></i> Reportes
-            </a>
-            <a href="../pages/logout.php" class="nav-item" style="display: block; color: var(--white-smoke); padding: 1rem 2rem; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s; margin-top: auto;">
-                <i class="fas fa-sign-out-alt" style="width: 20px; margin-right: 1rem;"></i> Cerrar Sesión
-            </a>
-        </nav>
+        <nav class="sidebar-nav">
+    <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
+
+    <a href="index.php" class="nav-item <?= $current_page === 'index.php' ? 'active' : '' ?>">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    <a href="menu-gestion.php" class="nav-item <?= $current_page === 'menu-gestion.php' ? 'active' : '' ?>">
+        <i class="fas fa-utensils"></i> Gestión Menú
+    </a>
+    <a href="reservas-admin.php" class="nav-item <?= $current_page === 'reservas-admin.php' ? 'active' : '' ?>">
+        <i class="fas fa-calendar-check"></i> Reservas
+    </a>
+    <a href="reportes.php" class="nav-item <?= $current_page === 'reportes.php' ? 'active' : '' ?>">
+        <i class="fas fa-chart-bar"></i> Reportes
+    </a>
+    
+    <a href="../pages/logout.php" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </a>
+</nav>
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="admin-main" style="margin-left: 280px; padding: 2rem; min-height: 100vh;">
-        <header class="admin-header" style="margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 2px solid rgba(169,146,125,0.2);">
+        <header class="admin-header" style="margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 2px solid rgba(221, 219, 217, 0.2);">
             <h1 style="color: var(--text-primary); font-size: 2.5rem; margin: 0;">
                 <i class="fas fa-tachometer-alt" style="color: var(--dusty-taupe); margin-right: 1rem;"></i>
                 Dashboard Administrativo

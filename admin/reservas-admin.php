@@ -70,9 +70,9 @@ $reservas = getReservas($conn, $filtros);
     </style>
 </head>
 <body>
-    <?php include 'index.php'; ?>
+    
 
-    <main class="container-fluid px-4 py-4" style="margin-left: 280px;">
+    <main class="container-fluid px-4 py-4" style="margin-left: 30px;">
         <!-- HEADER -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
